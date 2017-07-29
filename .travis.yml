@@ -6,3 +6,5 @@ script:
   - bash travis_deploy.sh
 
 cache: yarn
+
+sudo: required
