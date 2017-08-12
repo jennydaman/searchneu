@@ -22,38 +22,38 @@ var he = require('he')
 var moment = require('moment')
 import Keys from '../Keys'
 
+// import RequisiteNode from './RequisiteNode';
 var Section = require('./Section')
 var RequisiteBranch = require('./RequisiteBranch')
 
-
-
-
-function Class(config) {
-
-
-	//true, if for instance "AP placement exam, etc"
-	this.isString = false;
-
-	// A class that is listed as a prereq for another class on the site, but this class dosen't actually exist
-	// Currently, missing prereqs are not even added as prereqs for classes because I can't think of any reason to list classes
-	// that don't exist anywhere on the site. Could be changed in future, the fitlter is in this file. 
-	// this.missing = false;
-
-	//instances of Section()
-	this.sections = []
-
-	this.prereqs = {
-		type: 'or',
-		values: []
-	}
-
-
-	this.coreqs = {
-		type: 'or',
-		values: []
-	}
-
-	this.crns = [];
+class Class {
+  
+  constructor(config) {
+      
+  	//true, if for instance "AP placement exam, etc"
+  	this.isString = false;
+  
+  	// A class that is listed as a prereq for another class on the site, but this class dosen't actually exist
+  	// Currently, missing prereqs are not even added as prereqs for classes because I can't think of any reason to list classes
+  	// that don't exist anywhere on the site. Could be changed in future, the fitlter is in this file. 
+  	// this.missing = false;
+  
+  	//instances of Section()
+  	this.sections = []
+  
+  	this.prereqs = {
+  		type: 'or',
+  		values: []
+  	}
+  
+  
+  	this.coreqs = {
+  		type: 'or',
+  		values: []
+  	}
+  
+  	this.crns = [];
+  }
 }
 
 
@@ -436,74 +436,6 @@ Class.prototype.sectionsHaveExam = function () {
 	return false;
 };
 
-Class.prototype.getPrereqsString = function () {
-	var retVal = [];
-	this.prereqs.values.forEach(function (childBranch) {
-		if (!(childBranch instanceof RequisiteBranch)) {
-			if (childBranch.isString) {
-				retVal.push(childBranch.desc)
-			}
-			else {
-				retVal.push(childBranch.subject + ' ' + childBranch.classId)
-			}
-		}
-		//Ghetto fix until this tree is simplified
-		else if (_.uniq(childBranch.prereqs.values).length === 1) {
-			retVal.push(childBranch.getPrereqsString())
-		}
-		else {
-			retVal.push('(' + childBranch.getPrereqsString() + ')')
-		}
-	}.bind(this))
-
-	// Dedupe retVal
-	// If two classes have the same classId (eg. CS 2500 and CS 2500 (hon))
-	// remove one of them
-	retVal = _.uniq(retVal);
-
-	if (retVal.length === 0) {
-		return 'None'
-	}
-	else {
-		retVal = retVal.join(' ' + this.prereqs.type + ' ')
-
-		return retVal;
-	}
-};
-
-
-
-Class.prototype.getCoreqsString = function () {
-	var retVal = [];
-	this.coreqs.values.forEach(function (childBranch) {
-		if (!(childBranch instanceof RequisiteBranch)) {
-			if (childBranch.isString) {
-				retVal.push(childBranch.desc)
-			}
-			else {
-				retVal.push(childBranch.subject + ' ' + childBranch.classId)
-			}
-		}
-		else {
-			elog('need to have classes as coreqs, not RequisiteBranch')
-			retVal.push('something')
-		}
-	}.bind(this))
-
-	// Dedupe retVal
-	// If two classes have the same classId (eg. CS 2500 and CS 2500 (hon))
-	// remove one of them
-	retVal = _.uniq(retVal);
-
-	if (retVal.length === 0) {
-		return 'None'
-	}
-	else {
-		retVal = retVal.join(' ' + this.coreqs.type + ' ')
-
-		return retVal;
-	}
-};
 
 
 Class.prototype.loadSectionsFromSectionMap = function (sectionMap) {

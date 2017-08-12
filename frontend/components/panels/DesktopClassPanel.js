@@ -26,9 +26,6 @@ const cx = classNames.bind(css);
 // DesktopClassPanel page component
 class DesktopClassPanel extends BaseClassPanel {
 
-  constructor(props) {
-    super(props);
-  }
 
   componentDidUpdate(prevProps, prevState) {
     macros.debounceTooltipRebuild();
@@ -138,7 +135,7 @@ class DesktopClassPanel extends BaseClassPanel {
               // If it is online, just put one super wide cell
               if (section.online) {
                 tdElements.push(
-                  <td colSpan="4" className={css.wideOnlineCell}>
+                  <td key="onlineWideCell" colSpan="4" className={css.wideOnlineCell}>
                     <span className={css.onlineDivLineContainer}>
                       <span className = {css.onlineDivLine +' ' + css.onlineLeftLine}></span>
                       <span className= {css.onlineText}>Online Class</span>
@@ -148,26 +145,26 @@ class DesktopClassPanel extends BaseClassPanel {
               
               // Have individual cells for the different columns
               } else {
-                tdElements.push(<td> <WeekdayBoxes section={ section } /> </td>)
-                tdElements.push(<td>{section.getUniqueStartTimes().join(', ')}</td>)
-                tdElements.push(<td>{section.getUniqueEndTimes().join(', ')}</td>)
+                tdElements.push(<td key="weekDayBoxes"> <WeekdayBoxes section={ section } /> </td>)
+                tdElements.push(<td key="startTimes">{section.getUniqueStartTimes().join(', ')}</td>)
+                tdElements.push(<td key="endTimes">{section.getUniqueEndTimes().join(', ')}</td>)
 
                 // If there are exams, fill in those cells too
                 // Calculate the exam elements in each row
                 if (aClass.sectionsHaveExam()) {
                   const examMoments = section.getExamMoments();
                   if (examMoments) {
-                    tdElements.push(<td key='1'>{examMoments.start.format('h:mm a')}</td>)
-                    tdElements.push(<td key='2'>{examMoments.end.format('h:mm a')}</td>)
-                    tdElements.push(<td key='3'>{examMoments.start.format('MMM Do')}</td>)
+                    tdElements.push(<td key='exam1'>{examMoments.start.format('h:mm a')}</td>)
+                    tdElements.push(<td key='exam2'>{examMoments.end.format('h:mm a')}</td>)
+                    tdElements.push(<td key='exam3'>{examMoments.start.format('MMM Do')}</td>)
                   } else {
-                    tdElements.push(<td key='1'></td>)
-                    tdElements.push(<td key='2'></td>)
-                    tdElements.push(<td key='3'></td>)
+                    tdElements.push(<td key='exam4'></td>)
+                    tdElements.push(<td key='exam5'></td>)
+                    tdElements.push(<td key='exam6'></td>)
                   }
                 }
 
-                tdElements.push(<td> <LocationLinks section={ section } /> </td>);
+                tdElements.push(<td key="locationLinks"> <LocationLinks section={ section } /> </td>);
               }
 
 
@@ -232,9 +229,9 @@ class DesktopClassPanel extends BaseClassPanel {
             <br />
             <br />
             <div className={ css.leftPanel }>
-              Prerequisites: {aClass.getPrereqsString()}
+              Prerequisites: {this.getReqsString(true, aClass)}
               <br />
-              Corequisites: {aClass.getCoreqsString()}
+              Corequisites: {this.getReqsString(false, aClass)}
             </div>
             <div className={ css.rightPanel }>
               Updated {aClass.getLastUpdateString()}

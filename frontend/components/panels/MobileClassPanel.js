@@ -111,9 +111,9 @@ class MobileClassPanel extends BaseClassPanel {
               {'View on ' + aClass.host}
             </a>
             <br />
-            Corequisites: {aClass.getCoreqsString()}
+            Corequisites: {this.getReqsString(false, aClass)}
             <br />
-            Prerequisites: {aClass.getPrereqsString()}
+            Prerequisites: {this.getReqsString(true, aClass)}
           </div>
         </span>
         );
