@@ -42,6 +42,8 @@
     height: 30px;
     top: 40px;
     left: 40px;
+    z-index: 10;
+    cursor: pointer;
 }
 
 .mobileCompact .logo {
@@ -53,6 +55,7 @@
     bottom: 0px;
     width: 100%;
     text-align: center;
+    transition-delay: 1s;
 }
 .boston {
     width: 1500px;
