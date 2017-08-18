@@ -1,5 +1,4 @@
-
-// Setup environmental constants. This is used in both the frontend and the backend. The process.env is set in webpack and in package.jsonp
+// Setup environmental constants. This is used in both the frontend and the backend. The process.env is set in webpack and in package.json
 // These are setup in the webpack config
 
 
@@ -41,7 +40,7 @@ class Macros {
   static isNumeric(n) {
     return !isNaN(parseFloat(n)) && isFinite(n);
   }
-
+  
 
   // Strips the middle name from a name.
   // The given full name is the person's full name, including first, middle, and last names
@@ -129,6 +128,9 @@ class Macros {
 
 // XXX: This is stuff that is hardcoded for now, need to change when expanding to other schools.
 Macros.collegeName = 'Northeastern University';
+
+// This is the same token in the frontend and the backend, and does not need to be kept private. . 
+Macros.amplitudeToken = "e0801e33a10c3b66a3c1ac8ebff53359";
 
 // Set up the Macros.TESTS, Macros.DEV, and Macros.PROD based on some env variables. 
 if (process.env.PROD || process.env.NODE_ENV === 'production' || process.env.NODE_ENV === 'prod') {

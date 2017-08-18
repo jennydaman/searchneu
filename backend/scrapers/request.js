@@ -106,13 +106,6 @@ class Request {
 
     this.dnsPromises = {};
 
-    // Index with hostname. Value is {
-      // openRequests: number // how many requests are open to this hostname
-      // pendingRequests: array of {config:, promise:, resolve:, reject:}
-    // }
-    this.hostnameThrottlingMap = {}
-
-
     // Stuff for analytics on a per-hostname basis.
     this.analytics = {};
 
@@ -192,12 +185,21 @@ class Request {
 
       macros.log(hostname);
       macros.log(JSON.stringify(totalAnalytics, null, 4));
+      
+      // Also log the event to Amplitude.
+      totalAnalytics.hostname = hostname;
+      macros.logAmplitudeEvent('Scrapers', totalAnalytics);
     }
 
     this.activeHostnames = {};
 
     // Shared pool
-    macros.log(JSON.stringify(this.getAnalyticsFromAgent(separateReqDefaultPool), null, 4));
+    const sharedPoolAnalytics = this.getAnalyticsFromAgent(separateReqDefaultPool);
+    macros.log(JSON.stringify(sharedPoolAnalytics, null, 4));
+    
+    // Also upload it to Amplitude.
+    sharedPoolAnalytics.hostname = 'shared';
+    macros.logAmplitudeEvent('Scrapers', sharedPoolAnalytics);
 
     if (this.openRequests === 0) {
       clearInterval(this.timer);
@@ -337,7 +339,7 @@ class Request {
       clearInterval(this.timer);
       macros.log('Starting request analytics timer.');
       this.analytics[hostname].startTime = Date.now();
-      this.timer = setInterval(this.onInterval.bind(this), 5000);
+      this.timer = setInterval(this.onInterval.bind(this), 1000);
       setTimeout(() => {
         this.onInterval();
       }, 0);
@@ -365,37 +367,6 @@ class Request {
 
 
     return response;
-  }
-
-
-  // Step in between the request function and actually firing the request.
-  // Limits the queues to 3x the number of sockets.
-  // the built in request modules uses a lot of RAM for each request that it stores
-  // and this limits the number of requests that it stores.
-  queueRequest(config) {
-    const hostname = new URI(config.url).hostname();
-
-    if (!this.hostnameThrottlingMap[hostname]) {
-
-      let maxConnections;
-
-      if (separateReqPools[hostname]) {
-        maxConnections = separateReqPools[hostname].maxSockets
-      }
-      else {
-        maxConnections = separateReqDefaultPool.maxSockets
-      }
-
-      // First argument is number of simultaneous requests
-      // Second argument is maximum number of items allowed in the queue. 
-      this.hostnameThrottlingMap[hostname] = new promiseQueue(3 * maxConnections, Infinity);
-    }
-
-    const queue = this.hostnameThrottlingMap[hostname];
-
-    return queue.add(() => {
-      return this.fireRequest(config)
-    })
   }
 
 
@@ -491,7 +462,7 @@ class Request {
         tryCount++;
         try {
           const requestStart = Date.now();
-          response = await this.queueRequest(config);
+          response = await this.fireRequest(config);
           requestDuration = Date.now() - requestStart;
           this.analytics[hostname].totalGoodRequests++;
         } catch (err) {

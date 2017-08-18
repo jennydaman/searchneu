@@ -7,11 +7,15 @@ import classNames from 'classnames/bind';
 import '../css/base.css';
 
 import aoun from './aouuuuuuuuun.png'
+import SplashPage from './SplashPage/SplashPage';
 import search from './search';
 import css from './home.css';
 import macros from './macros';
 import ResultsLoader from './ResultsLoader';
 
+// sean stuff
+import logo from './logo.svg';
+import boston from './boston.svg';
 
 const cx = classNames.bind(css);
 
@@ -30,6 +34,11 @@ class Home extends React.Component {
       // If we a waiting on a user on a slow computer to click enter to search.
       // On desktop, the data is searched every time, but it is only searched after you click enter on mobile.
       waitingOnEnter: false,
+
+      // Keeps track of whether to show the results or the splash screen.
+      // Is the same as this.state.searchTerm.length === 0 most of the time, but when the search results are deleted,
+      // they animate away instead of switching instantly. 
+      showSearchResults: false,
     };
 
     // Timer used to debounce search queries
@@ -45,14 +54,21 @@ class Home extends React.Component {
     // Updated with react refs when the render function runs.
     this.inputElement = null;
 
+    // Used to get the height of the results container element so we can move the stuff below the container up the amount it was transformed.
+    this.resultsContainerElement = null;
+
+    // Timer used for hidding the search results after an interval
+    this.hideSearchResultsTimeout = null;
+
     this.onClick = this.onClick.bind(this);
     this.onKeyDown = this.onKeyDown.bind(this);
     this.loadMore = this.loadMore.bind(this);
     this.onPopState = this.onPopState.bind(this);
     this.onDOMEventSearch = this.onDOMEventSearch.bind(this);
+    this.onInputFocus = this.onInputFocus.bind(this);
     this.onSearchDebounced = this.onSearchDebounced.bind(this);
 
-    // Count the number of times the user searched this session. Used for analytics. 
+    // Count the number of times the user searched this session. Used for analytics.
     this.searchCount = 0;
 
     // Log the initial search or pageview.
@@ -68,32 +84,28 @@ class Home extends React.Component {
     let query = this.getSearchQueryFromUrl()
 
     // Only search if the query is longer than 0
-    if (query) {
-      this.search(query)
-    }
-    else {
-      this.setState({
-        results: [],
-        searchTerm: query,
-      });
-    }
+    this.search(query)
 
     if (this.inputElement) {
       this.inputElement.value = query
     }
   }
 
-  // Remove the listener when this component goes away. 
-  // Even this component will never go away in prod, it can go away in dev due to HMR. 
+  // Remove the listener when this component goes away.
+  // Even this component will never go away in prod, it can go away in dev due to HMR.
   componentWillUnmount() {
     window.removeEventListener('onpopstate', this.onPopState);
     window.removeEventListener(macros.searchEvent, this.onDOMEventSearch);
+    if (this.inputElement) {
+      console.log("noooooope")
+      this.inputElement.removeEventListener('focus', this.onInputFocus);
+    }
   }
 
   logSearch(searchTerm) {
     searchTerm = searchTerm.trim();
     if (searchTerm === this.lastSearch) {
-      console.log('Not logging because same as last search', searchTerm);
+      macros.log('Not logging because same as last search', searchTerm);
       return;
     }
     this.lastSearch = searchTerm;
@@ -101,33 +113,40 @@ class Home extends React.Component {
     if (searchTerm) {
       this.searchCount ++;
       window.ga('send', 'pageview', `/?search=${searchTerm}`);
-      window.amplitude.logEvent('Search', {'query': searchTerm, sessionCount: this.searchCount});
+
+      macros.logAmplitudeEvent('Search', {'query': searchTerm, sessionCount: this.searchCount});
     } else {
-      window.amplitude.logEvent('Homepage visit');
+      macros.logAmplitudeEvent('Homepage visit');
       window.ga('send', 'pageview', '/');
     }
   }
-  
-  
+
+
   onDOMEventSearch(event) {
-    const aClass = event.detail;
-    
-    // Get the query
-    const query = aClass.subject + ' ' + aClass.classId
-    
+    const query = event.detail;
+
     // Update the text box.
     if (this.inputElement) {
       this.inputElement.value = query
     }
-    
+
     // Update the url
     this.onSearchDebounced(query);
-    
+
     // Scroll to the top
     document.body.scrollTop = 0;
-    
-    // console.log('yooo', event)
+
     this.search(query);
+  }
+
+  onInputFocus(event) {
+
+    if (macros.isMobile) {
+      this.setState({
+        results: [],
+        waitingOnEnter: true
+      })
+    }
   }
 
 
@@ -149,7 +168,7 @@ class Home extends React.Component {
     // There was one error received by rollbar that said:
     // Uncaught SecurityError: Failed to execute 'pushState' on 'History': A history state object with URL 'https:' cannot be created in a document with origin 'https://searchneu.com' and URL 'https://searchneu.com/...'.
     // Which doesn't really make sense because 'https:' is not a valid URL,
-    // but just in case there is a try-catch around this call (no real reason not to have one). 
+    // but just in case there is a try-catch around this call (no real reason not to have one).
     // https://rollbar.com/ryanhugh/searchneu/items/10/
     try {
       history.pushState(null, null, `/${encodedQuery}`);
@@ -163,26 +182,28 @@ class Home extends React.Component {
 
   componentDidMount() {
 
-    // Add a listener for location changes. 
+    // Add a listener for location changes.
     window.addEventListener('popstate', this.onPopState);
     window.addEventListener(macros.searchEvent, this.onDOMEventSearch);
+    if (this.inputElement) {
+      console.log('uupppppppp')
+      this.inputElement.addEventListener('focus', this.onInputFocus);
 
-    if (this.state.searchTerm) {
-      console.log('Going to serach for', this.state.searchTerm);
-      this.search(this.state.searchTerm);
+      // Don't autofocus on mobile so when the user clicks it we can handle the event and move some elements around. 
+      if (!macros.isMobile) {
+        this.inputElement.focus();
+      }
+
+
     }
 
-    // If testing locally, bring up some results without typing in anything.
-    // (This is just for testing, feel free to change it to whatever.)
-    else if (macros.DEV) {
-      this.search('cs');
-    } else {
-      // Force an update on the screen so the loading bar disappears and the page shows.
-      this.forceUpdate();
+    if (this.state.searchTerm) {
+      macros.log('Going to serach for', this.state.searchTerm);
+      this.search(this.state.searchTerm);
     }
   }
 
-  
+
 
   // Called from ResultsLoader to load more
   loadMore() {
@@ -191,29 +212,44 @@ class Home extends React.Component {
 
   async search(searchTerm, termCount = 5) {
     this.currentQuery = searchTerm;
+
     const results = await search.search(searchTerm, termCount);
 
     if (searchTerm !== this.currentQuery) {
-      console.log('Did not come back in order, discarding ', searchTerm);
+      macros.log('Did not come back in order, discarding ', searchTerm);
       return;
     }
 
-    this.setState({
-      results: results,
+    clearTimeout(this.hideSearchResultsTimeout);
+
+
+    let newState = {
+      showSearchResults: true,
       searchTerm: searchTerm,
       waitingOnEnter: false,
-    });
+    }
+
+    if (searchTerm.length !== 0) {
+      newState.results = results;
+    }
+
+
+    this.setState(newState);
+
+
+    // Hide the results after some delay
+    if (searchTerm.length === 0) {
+      this.hideSearchResultsTimeout = setTimeout(() => {
+        this.setState({
+          results: [],
+          showSearchResults: false
+        })
+      }, 2000);
+    }
+
   }
 
   searchFromUserAction(event) {
-    if (!event.target.value) {
-      this.setState({
-        results: [],
-        searchTerm: event.target.value,
-      });
-      return;
-    }
-
     this.search(event.target.value);
   }
 
@@ -256,7 +292,10 @@ class Home extends React.Component {
   render() {
     let resultsElement = null;
 
-    if (this.state.results) {
+    if (!this.state.showSearchResults) {
+      resultsElement = <span  className={css.splashPage}> <SplashPage/> </span>
+    }
+    else if (this.state.results) {
 
       let memeMatches = {
         meme: true,
@@ -265,8 +304,8 @@ class Home extends React.Component {
 
       if (memeMatches[this.state.searchTerm.toLowerCase().trim()]) {
         resultsElement = (
-          <div className = { css.aounContainer }> 
-            <img src={aoun}/> 
+          <div className = { css.aounContainer }>
+            <img src={aoun}/>
           </div>
         )
       }
@@ -296,13 +335,14 @@ class Home extends React.Component {
     }
 
     let hitEnterToSearch = null;
-    if (this.state.waitingOnEnter) {
+    if (document.activeElement == this.inputElement) {
       hitEnterToSearch = (
         <div className={ css.hitEnterToSearch }>
           Hit Enter to Search ...
         </div>
       );
     }
+
 
     let mobileSearchBoxStyle = {}
     if (macros.isMobile) {
@@ -314,8 +354,73 @@ class Home extends React.Component {
       }
     }
 
+    // Styles for the search header and the boston outline at the bottom of the above-the-fold content.
+    let bostonContainerStyle = {}
+    let topHeaderStyle = {}
+    let resultsContainerStyle = {}
+    if (!macros.isMobile) {
+      if (this.state.searchTerm.length === 0) {
+        topHeaderStyle.height = '100%'
+        // topHeaderStyle.height = '900px'
+        topHeaderStyle.transitionDelay = '1s';
+
+        bostonContainerStyle.opacity = 1;
+        bostonContainerStyle.transitionDelay = '1s';
+        bostonContainerStyle.transition = 'opacity 1s'
+
+
+        resultsContainerStyle.transitionDelay = '1s';
+      }
+      else {
+        // topHeaderStyle.height = '216px'
+        topHeaderStyle.height = '100%'
+        topHeaderStyle.transform = 'translateY(-35%)'
+
+        let height = window.innerHeight - 305
+        
+        resultsContainerStyle.transform = 'translateY(-' + height + 'px)'
+
+        // if (this.resultsContainerElement) {
+
+        //   if (this.resultsContainerElement.style.height) {
+        //     resultsContainerStyle.height = this.resultsContainerElement.style.height
+        //   }
+        //   else {
+        //     console.log(this.resultsContainerElement)
+        //     resultsContainerStyle.height = (this.resultsContainerElement.offsetHeight - height) + 'px'
+        //   }
+        // }
+
+
+
+
+        bostonContainerStyle.opacity = 0;
+        bostonContainerStyle.transition = 'opacity 1s'
+
+
+        topHeaderStyle.transitionDelay = '1s';
+        bostonContainerStyle.transitionDelay = '1s';
+        resultsContainerStyle.transitionDelay = '1s';
+
+      }
+    }
+
+    // On mobile only show the logo and the github corner if there are no results and the search box is not focused (the virtual keyboard is not on the screen)
+
+    let mobileClassType;
+    if (!macros.isMobile) {
+      mobileClassType = '';
+    }
+    else if (document.activeElement == this.inputElement || this.state.results.length > 0) {
+      mobileClassType = css.mobileCompact;
+    }
+    else {
+      mobileClassType = css.mobileFull
+    }
+
+    // Not totally sure why, but this height: 100% removes the extra whitespace at the bottom of the page caused by the upward translate animation. 
     return (
-      <div>
+      <div className={mobileClassType} style={{height:'100%'}}>
 
         <a href='https://github.com/ryanhugh/searchneu' className='github-corner'>
           {/* eslint-disable max-len */}
@@ -327,87 +432,98 @@ class Home extends React.Component {
           {/* eslint-enable max-len */}
         </a>
 
-        <div className={ css.topPadding } />
+        <img src={logo} className={ css.logo } alt="logo" />
+
+       <div className={css.bostonContainer} style={bostonContainerStyle} > 
+          <img src={boston} className={ css.boston } alt="logo" />
+        </div>
+
         <div>
           <div id='top-header' className={cx({
-            ui: true,
-            center: true,
-            aligned: true,
-            icon: true,
-            header: true,
-            mobileHeader: macros.isMobile
-          })}>
-            <h1 className={ css.title }>
-            Search
-          </h1>
-            <h3 className={ css.subtitle }>
-              For Northeastern
-            </h3>
-            <div className = {css.semester}>
-              Fall 2017
+              ui: true,
+              center: true,
+              spacing: true,
+              aligned: true,
+              icon: true,
+              header: true,
+              topHeader: true,
+            })} style={topHeaderStyle}>
+            <div className={css.centerTextContainer}>
+              <h1 className={ css.title }>
+                Search For Northeastern
+              </h1>
+              <p className={ css.subtitle }>
+                Search for classes, professors, times, etc.
+              </p>
+              <div id='search-wrapper' className='sub header' style = {mobileSearchBoxStyle}>
+                <label htmlFor='search_id'>
+                  <i className='search icon' />
+                </label>
+                <input
+                  type='search'
+                  id='seach_id'
+                  autoComplete='off'
+                  spellCheck='false'
+                  tabIndex='0'
+                  className={css.searchBox}
+                  onChange={ this.onClick }
+                  onKeyDown={ this.onKeyDown }
+                  defaultValue={ this.state.searchTerm }
+                  ref={(element) => { this.inputElement = element; }}
+                />
+              </div>
+              {hitEnterToSearch}
             </div>
-            <div id='search-wrapper' className='sub header' style = {mobileSearchBoxStyle}>
-              <label htmlFor='search_id'>
-                <i className='search icon' />
-              </label>
-              <input
-                autoFocus 
-                type='search'
-                id='seach_id'
-                placeholder='Search Classes, Professors, and Employees'
-                autoComplete='off'
-                spellCheck='false'
-                tabIndex='0'
-                onChange={ this.onClick }
-                onKeyDown={ this.onKeyDown }
-                defaultValue={ this.state.searchTerm }
-                ref={(element) => { this.inputElement = element; }}
-              />
-            </div>
-            {hitEnterToSearch}
           </div>
-          {resultsElement}
-        </div>
-        <div className={ css.botttomPadding } />
-
-
-        <div className='ui divider' />
-
-        <div className='footer ui basic center aligned segment'>
-          See an issue or want to add to this website? Fork it or create an issue on
-          <a target='_blank' rel='noopener noreferrer' href='https://github.com/ryanhugh/searchneu'>
-            &nbsp;GitHub
-          </a>.
         </div>
 
-        <div className='ui divider' />
+        <div style={resultsContainerStyle} className={css.resultsContainer} >
+          <div ref={(element) => {this.resultsContainerElement = element;}}>
+            {resultsElement}
+          </div>
 
-        <div className={'footer ui basic center aligned segment ' + css.credits}>
-          Made with&nbsp;
-          <i className='rocket circular small icon' />
-          &nbsp;by&nbsp;
-          <a target='_blank' rel='noopener noreferrer' href='http://github.com/ryanhugh'>
-            Ryan Hughes
-          </a>
-          &nbsp;and UI inspired by&nbsp;
-          <a target='_blank' rel='noopener noreferrer' href='https://github.com/2factorauth/twofactorauth'>
-            Two Factor Authenticaton
-          </a>.
+          <div className={ css.botttomPadding } />
+
+          <div className={css.footer}> 
+
+            <div className='footer ui basic center aligned segment'>
+              See an issue or want to add to this website? Fork it or create an issue on
+              <a target='_blank' rel='noopener noreferrer' href='https://github.com/ryanhugh/searchneu'>
+                &nbsp;GitHub
+              </a>.
+            </div>
+
+            <div className='ui divider' />
+
+            <div className={'footer ui basic center aligned segment ' + css.credits}>
+              Made with&nbsp;
+              <i className='rocket circular small icon' />
+              &nbsp;by&nbsp;
+              <a target='_blank' rel='noopener noreferrer' href='http://github.com/ryanhugh'>
+                Ryan Hughes
+              </a>
+              &nbsp;and UI inspired by&nbsp;
+              <a target='_blank' rel='noopener noreferrer' href='https://github.com/2factorauth/twofactorauth'>
+                Two Factor Authenticaton
+              </a>.
+            </div>
+
+            <div className={"footer ui basic center aligned segment " + css.contact}>
+              <a target='_blank' rel='noopener noreferrer' href="https://docs.google.com/forms/d/e/1FAIpQLSckWpmBBFPGYycZc54rirDaxINcx14_ApTkisamyfF7Mmo6Gw/viewform">
+                Feedback
+              </a>
+              &nbsp;•&nbsp;
+              <a target='_blank' rel='noopener noreferrer' href="https://docs.google.com/forms/d/e/1FAIpQLSckWpmBBFPGYycZc54rirDaxINcx14_ApTkisamyfF7Mmo6Gw/viewform">
+                Report a bug
+              </a>
+              &nbsp;•&nbsp;
+              <a target='_blank' rel='noopener noreferrer' href="https://docs.google.com/forms/d/e/1FAIpQLSckWpmBBFPGYycZc54rirDaxINcx14_ApTkisamyfF7Mmo6Gw/viewform">
+                Contact
+              </a>
+            </div>
+          </div>
         </div>
 
-        <div className={"footer ui basic center aligned segment " + css.contact}>
-          <a target='_blank' rel='noopener noreferrer' href="https://docs.google.com/forms/d/e/1FAIpQLSckWpmBBFPGYycZc54rirDaxINcx14_ApTkisamyfF7Mmo6Gw/viewform">
-            Feedback
-          </a>
-          &nbsp;•&nbsp;
-          <a target='_blank' rel='noopener noreferrer' href="https://docs.google.com/forms/d/e/1FAIpQLSckWpmBBFPGYycZc54rirDaxINcx14_ApTkisamyfF7Mmo6Gw/viewform">
-            Report a bug
-          </a>
-          &nbsp;•&nbsp;
-          <a target='_blank' rel='noopener noreferrer' href="https://docs.google.com/forms/d/e/1FAIpQLSckWpmBBFPGYycZc54rirDaxINcx14_ApTkisamyfF7Mmo6Gw/viewform">
-            Contact
-          </a>
-        </div>
 
 
         <ReactTooltip effect='solid' className={ css.listIconTooltip } />

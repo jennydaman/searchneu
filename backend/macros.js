@@ -2,8 +2,12 @@ import path from 'path';
 import URI from 'urijs';
 import mkdirp from 'mkdirp-promise';
 import fs from 'fs-promise';
+import rollbar from 'rollbar';
+import Amplitude from 'amplitude';
 
-import commonMacros from '../common/macros';
+import commonMacros from '../common/abstractMacros';
+
+const amplitude = new Amplitude(commonMacros.amplitudeToken)
 
 // Collection of small functions that are used in many different places in the backend. 
 // This includes things related to saving and loading the dev data, parsing specific fields from pages and more. 
@@ -25,6 +29,12 @@ while (1) {
   break;
 }
 
+
+
+
+// This is the JSON object saved in /etc/searchneu/config.json
+// opened once getEnvVariable is called once. 
+let envVariablesPromise = null;
 
 class Macros extends commonMacros {
 
@@ -160,19 +170,48 @@ class Macros extends commonMacros {
     return n;
   }
   
-  static async getEnvVariable(name) {
-    let exists = await fs.exists('/etc/searchneu/config.json');
-    
+  static async getAllEnvVariables() {
+    let configFileName = '/etc/searchneu/config.json';
+      
+    let exists = await fs.exists(configFileName);
+
+    // Also check /mnt/c/etc... in case we are running inside WSL.
     if (!exists) {
-      return null;
+      configFileName = '/mnt/c/etc/searchneu/config.json'
+      exists = await fs.exists(configFileName)
     }
     
+    if (!exists) {
+      return {};
+    }
     
-    let body = await fs.readFile('/etc/searchneu/config.json')
+    let body = await fs.readFile(configFileName)
     
-    let obj = JSON.parse(body)
+    return JSON.parse(body)
+  }
+  
+  static async getEnvVariable(name) {
+    if (!envVariablesPromise) {
+      envVariablesPromise = this.getAllEnvVariables();
+    }
     
-    return obj[name]
+    return (await envVariablesPromise)[name]
+  }
+
+  // Log an event to amplitude. Same function signature as the function for the frontend. 
+  static async logAmplitudeEvent(type, event) {
+    if (!Macros.PROD) {
+      return;
+    }
+    
+    var data = {
+      event_type: type,
+      device_id: 'backend',
+      session_id: Date.now(),
+      event_properties: event
+    };   
+    
+    return amplitude.track(data);
   }
 
 
@@ -188,12 +227,46 @@ class Macros extends commonMacros {
   // Will log stack trace
   // and cause CI to fail
   // so CI will send an email
-  static error(...args) {
+  static async error(...args) {
     super.error(...args);
-   
-    // So I get an email about it
-    if (process.env.CI) {
-      process.exit(1);
+
+    if (Macros.PROD) {
+    
+      // If running on Travis, just exit 1 and travis will send off an email.
+      if (process.env.CI) {
+        process.exit(1);
+      
+      // If running on AWS, tell rollbar about the error so rollbar sends off an email.
+      } else {
+        const rollbarKey = await macros.getEnvVariable('rollbarPostServerItemToken');
+        rollbar.init(rollbarKey);
+
+        let stack = (new Error()).stack
+        let message;
+
+        // The middle object can include any properties and values, much like amplitude. 
+        args.stack = stack;
+
+        if (args.length === 0) {
+          args.push('Error had no message?')
+        }
+
+        if (args[0] instanceof Error) {
+
+          // The middle object can include any properties and values, much like amplitude. 
+          rollbar.handleError(args[0], args, function() {
+
+            // And kill the process to recover.
+            // forver.js will restart it.
+            process.exit(1);
+          });
+        }
+        else {
+          rollbar.error(args[0], args, function() {
+            process.exit(1);
+          });
+        }
+      }
     }
   }
 
@@ -206,7 +279,6 @@ class Macros extends commonMacros {
 
     console.log.apply(console.log, args);
   }
-
 }
 
 
@@ -219,16 +291,19 @@ Macros.ALPHABET = 'maqwertyuiopsdfghjklzxcvbn';
 
 Macros.verbose('Starting in verbose mode.');
 
+
+async function handleUncaught(err) {
+  console.log('Error: An unhandledRejection occurred.');
+  console.log(`Rejection Stack Trace: ${err.stack}`);
+  Macros.error(err.stack)
+}
+
+
+// Sometimes it helps debugging to enable this test mode too. 
 if ((Macros.PROD || Macros.DEV || 1) && !global.addedRejectionHandler) {
   global.addedRejectionHandler = true;
-  process.on('unhandledRejection', (err, p) => {
-    console.log('Error: An unhandledRejection occurred.');
-    console.log(`Rejected Promise: ${p}`);
-    console.log(`Rejection Stack Trace: ${err.stack}`);
-    if (Macros.PROD) {
-      process.exit(1);
-    }
-  });
+  process.on('unhandledRejection', handleUncaught);
+  process.on('uncaughtException', handleUncaught);
 }
 
 
