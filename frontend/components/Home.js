@@ -98,7 +98,6 @@ class Home extends React.Component {
     window.removeEventListener('onpopstate', this.onPopState);
     window.removeEventListener(macros.searchEvent, this.onDOMEventSearch);
     if (this.inputElement) {
-      console.log("noooooope")
       this.inputElement.removeEventListener('focus', this.onInputFocus);
     }
   }
@@ -351,51 +350,20 @@ class Home extends React.Component {
     }
 
 
-    let mobileSearchBoxStyle = {}
-    if (macros.isMobile) {
-      mobileSearchBoxStyle = {
-        width: '95%',
-        marginRight: '10px',
-        marginLeft: '10px',
-        maxWidth: 'none'
-      }
-    }
-
     // Styles for the search header and the boston outline at the bottom of the above-the-fold content.
     let bostonContainerStyle = {}
     let topHeaderStyle = {}
     let resultsContainerStyle = {}
-    if (!macros.isMobile) {
-      if (this.state.searchTerm.length === 0) {
-        topHeaderStyle.height = '100%'
-        // topHeaderStyle.height = '900px'
-        topHeaderStyle.transitionDelay = '1s';
 
-        bostonContainerStyle.opacity = 1;
-        bostonContainerStyle.transitionDelay = '1s';
-        bostonContainerStyle.transition = 'opacity 1s'
-
-        resultsContainerStyle.transitionDelay = '1s';
-      }
-      else {
-        topHeaderStyle.height = '100%'
-        topHeaderStyle.transform = 'translateY(-35%)'
-
-        let height = window.innerHeight - 305
-        
-        resultsContainerStyle.transform = 'translateY(-' + height + 'px)'
-
-        bostonContainerStyle.opacity = 0;
-        bostonContainerStyle.transition = 'opacity 1s'
-
-        topHeaderStyle.transitionDelay = '1s';
-        resultsContainerStyle.transitionDelay = '1s';
-
-      }
+    // Don't animate anything on mobile. 
+    // and set the second state of the animations if there is something in the text box. 
+    if (!macros.isMobile && this.state.searchTerm.length !== 0) {
+      topHeaderStyle.transform = 'translateY(calc(-50% + 230px))'
+      resultsContainerStyle.transform = 'translateY(-' + (window.innerHeight - 305) + 'px)'
+      bostonContainerStyle.opacity = 0;
     }
 
-    // On mobile only show the logo and the github corner if there are no results and the search box is not focused (the virtual keyboard is not on the screen)
-
+    // On mobile only show the logo and the github corner if there are no results and the search box is not focused (the virtual keyboard is not on the screen).
     let mobileClassType;
     if (!macros.isMobile) {
       mobileClassType = '';
@@ -412,12 +380,12 @@ class Home extends React.Component {
     return (
       <div className={mobileClassType} style={{height:'100%'}}>
 
-        <a  target='_blank' rel='noopener noreferrer' href='https://github.com/ryanhugh/searchneu' className='github-corner'>
+        <a  target='_blank' rel='noopener noreferrer' href='https://github.com/ryanhugh/searchneu' className={css.githubCornerContainer}>
           {/* eslint-disable max-len */}
-          <svg width='80' height='80' viewBox='0 0 250 250' className={ css.githubCornerIcon } >
+          <svg width='80' height='80' viewBox='0 0 250 250'>
             <path d='M0,0 L115,115 L130,115 L142,142 L250,250 L250,0 Z' />
-            <path d='M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2' fill='currentColor' className={ `${css.octopusArm} octo-arm` } />
-            <path d='M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z' fill='currentColor' className='octo-body' /> {/* eslint-disable max-len*/}
+            <path d='M128.3,109.0 C113.8,99.7 119.0,89.6 119.0,89.6 C122.0,82.7 120.5,78.6 120.5,78.6 C119.2,72.0 123.4,76.3 123.4,76.3 C127.3,80.9 125.5,87.3 125.5,87.3 C122.9,97.6 130.6,101.9 134.4,103.2' fill='currentColor' className={ css.octopusArm } />
+            <path d='M115.0,115.0 C114.9,115.1 118.7,116.5 119.8,115.4 L133.7,101.6 C136.9,99.2 139.9,98.4 142.2,98.6 C133.8,88.0 127.5,74.4 143.8,58.0 C148.5,53.4 154.0,51.2 159.7,51.0 C160.3,49.4 163.2,43.6 171.4,40.1 C171.4,40.1 176.1,42.5 178.8,56.2 C183.1,58.6 187.2,61.8 190.9,65.4 C194.5,69.0 197.7,73.2 200.1,77.6 C213.8,80.2 216.3,84.9 216.3,84.9 C212.7,93.1 206.9,96.0 205.4,96.6 C205.1,102.4 203.0,107.8 198.3,112.5 C181.9,128.9 168.3,122.5 157.7,114.1 C157.9,116.9 156.7,120.9 152.7,124.9 L141.0,136.5 C139.8,137.7 141.6,141.9 141.8,141.8 Z' fill='currentColor' /> {/* eslint-disable max-len*/}
           </svg>
           {/* eslint-enable max-len */}
         </a>
@@ -429,7 +397,7 @@ class Home extends React.Component {
         </div>
 
         <div>
-          <div id='top-header' className={cx({
+          <div className={cx({
               ui: true,
               center: true,
               spacing: true,
@@ -445,7 +413,7 @@ class Home extends React.Component {
               <p className={ css.subtitle }>
                 Search for classes, professors, times, etc.
               </p>
-              <div id='search-wrapper' className='sub header' style = {mobileSearchBoxStyle}>
+              <div className={'sub header ' + css.searchWrapper}>
                 <label htmlFor='search_id'>
                   <i className='search icon' />
                 </label>
