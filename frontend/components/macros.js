@@ -62,7 +62,7 @@ const searchneu = `
  We're looking for talented individuals who want to build great products
  that impact thousands of student's lives. Interested? Help us build Search NEU!
 
- Shoot an email to ryanhughes624@gmail.com and mention that you saw this text :)
+ Contact us at hey@searchneu.com :)
  `
  
 if (Macros.PROD) {
@@ -75,6 +75,9 @@ Macros.sectionsShownByDefault = 3;
 
 // How many sections to add when the user clicks the show more button. 
 Macros.sectionsAddedWhenShowMoreClicked = 5;
+
+// If this number of section is shown, the show more button will just show the rest of them instead of showing just a couple more. 
+Macros.sectionsShowAllThreshold = 15;
 
 Macros.searchEvent = 'customSearch';
 
