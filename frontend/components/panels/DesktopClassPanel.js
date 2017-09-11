@@ -134,8 +134,16 @@ class DesktopClassPanel extends BaseClassPanel {
 
               // If it is online, just put one super wide cell
               if (section.online) {
+
+                // How many cells to span
+                // need to span more cells if final exam columns are being shown. 
+                let length = 4;
+                if (aClass.sectionsHaveExam()) {
+                  length = 7
+                }
+
                 tdElements.push(
-                  <td key="onlineWideCell" colSpan="4" className={css.wideOnlineCell}>
+                  <td key="onlineWideCell" colSpan={length} className={css.wideOnlineCell}>
                     <span className={css.onlineDivLineContainer}>
                       <span className = {css.onlineDivLine +' ' + css.onlineLeftLine}></span>
                       <span className= {css.onlineText}>Online Class</span>
@@ -152,11 +160,11 @@ class DesktopClassPanel extends BaseClassPanel {
                 // If there are exams, fill in those cells too
                 // Calculate the exam elements in each row
                 if (aClass.sectionsHaveExam()) {
-                  const examMoments = section.getExamMoments();
-                  if (examMoments) {
-                    tdElements.push(<td key='exam1'>{examMoments.start.format('h:mm a')}</td>)
-                    tdElements.push(<td key='exam2'>{examMoments.end.format('h:mm a')}</td>)
-                    tdElements.push(<td key='exam3'>{examMoments.start.format('MMM Do')}</td>)
+                  const examMeeting = section.getExamMeeting();
+                  if (examMeeting) {
+                    tdElements.push(<td key='exam1'>{examMeeting.times[0][0].start.format('h:mm a')}</td>)
+                    tdElements.push(<td key='exam2'>{examMeeting.times[0][0].end.format('h:mm a')}</td>)
+                    tdElements.push(<td key='exam3'>{examMeeting.endDate.format('MMM Do')}</td>)
                   } else {
                     tdElements.push(<td key='exam4'></td>)
                     tdElements.push(<td key='exam5'></td>)
