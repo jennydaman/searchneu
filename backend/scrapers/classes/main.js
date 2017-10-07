@@ -225,7 +225,7 @@ class Main {
 const instance = new Main();
 
 if (require.main === module) {
-  instance.main(['neu']);
+  instance.main(['gwu']);
 }
 
 export default instance;
