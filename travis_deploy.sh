@@ -89,6 +89,7 @@ if [ "$TRAVIS_BRANCH" == "prod" ]; then
     echo username ryanhugh >> ~/.yarnrc
     echo >> ~/.yarnrc
     cat ~/.yarnrc
+    cat ~/.npmrc
 
     yarn login
 
