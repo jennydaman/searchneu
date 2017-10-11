@@ -4,7 +4,7 @@ trap 'exit' ERR
 # Echo each command as they are ran
 set -v
 
-npm run test
+# npm run test
 
 # Pull requests and commits to other branches shouldn't try to deploy
 if [ "$TRAVIS_PULL_REQUEST" != "false" ]; then
