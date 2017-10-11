@@ -24,13 +24,33 @@ if (process.env.TRAVIS && macros.DEV) {
 }
 
 
-async function main() {
-  const promises = [matchEmployees.main(), classes.main(['neu'])];
+class Main{
 
-  await Promise.all(promises);
+  async main(semesterly=false) {
 
-  console.log('done scrapers/main.js');
+
+    let classesPromise = classes.main(['neu'], semesterly=semesterly)
+
+    // If scraping stuff for semesterly, scrape just the classes
+    if (semesterly) {
+      return classesPromise;
+    }
+
+
+    let promises = [classesPromise, matchEmployees.main()]
+
+    await Promise.all(promises);
+
+    console.log('done scrapers/main.js');
+  }
+
 }
 
 
-main();
+const instance = new Main();
+
+if (require.main === module) {
+  instance.main();
+}
+
+export default instance;

@@ -14,6 +14,7 @@ import addClassUids from './processors/addClassUids';
 import prereqClassUids from './processors/prereqClassUids';
 import termStartEndDate from './processors/termStartEndDate';
 import simplifyProfList from './processors/simplifyProfList';
+import semesterly from './processors/semesterly'
 
 // Parsers
 import collegeNamesParser from './parsers/collegeNamesParser';
@@ -140,7 +141,7 @@ class Main {
   }
 
 
-  async main(collegeAbbrs) {
+  async main(collegeAbbrs, semesterlySchema=false) {
     if (!collegeAbbrs) {
       macros.error('Need collegeAbbrs for scraping classes');
       return null;
@@ -149,7 +150,7 @@ class Main {
     const cacheKey = collegeAbbrs.join(',');
 
     // if this is dev and this data is already scraped, just return the data
-    if (macros.DEV && require.main !== module) {
+    if (macros.DEV && require.main !== module && !semesterlySchema) {
       const devData = await cache.get('dev_data', 'classes', cacheKey);
       if (devData) {
         return devData;
@@ -167,8 +168,6 @@ class Main {
 
 
     // Find the name of the college (neu.edu -> Northeastern University)
-    // This is the first of the efforts to rewrite the old es5 code to es6,
-    // and remove a lot of the uncessecary logic
     const host = macros.getBaseHost(url);
     const collegeNamePromise = collegeNamesParser.main(host);
 
@@ -182,10 +181,6 @@ class Main {
     };
 
     this.waterfallIdentifyers(rootNode);
-
-    await fs.writeFile('out.log', JSON.stringify(rootNode, null, 4));
-    macros.log('out.log saved');
-
 
     const dump = this.pageDataStructureToTermDump(rootNode);
 
@@ -208,9 +203,16 @@ class Main {
     // Add new processors here.
     simplifyProfList.go(dump);
 
-
-    await searchIndex.main(dump);
-    await termDump.main(dump);
+    // If running with semesterly, save in the semesterly schema
+    // If not, save in the searchneu schema
+    console.log("semesterly:", semesterlySchema)
+    if (semesterlySchema) {
+      return semesterly.main(dump);
+    }
+    else {
+      await searchIndex.main(dump);
+      await termDump.main(dump);
+    }
 
 
     if (macros.DEV) {
@@ -225,7 +227,7 @@ class Main {
 const instance = new Main();
 
 if (require.main === module) {
-  instance.main(['gwu']);
+  instance.main(['neu'], true);
 }
 
 export default instance;
