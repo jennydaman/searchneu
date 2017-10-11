@@ -84,12 +84,12 @@ if [ "$TRAVIS_BRANCH" == "prod" ]; then
 
 
     # Deploy to npm
-    echo $NPM_TOKEN > ~/.npmrc
+    echo $NPM_TOKEN | base64 --decode > ~/.npmrc
     echo email ryanhughes624@gmail.com >> ~/.yarnrc
     echo username ryanhugh >> ~/.yarnrc
     echo >> ~/.yarnrc
     cat ~/.yarnrc
-    cat ~/.npmrc
+    # cat ~/.npmrc
 
     yarn login
 
