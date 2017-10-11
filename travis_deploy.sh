@@ -88,8 +88,10 @@ if [ "$TRAVIS_BRANCH" == "prod" ]; then
     echo email ryanhughes624@gmail.com >> ~/.yarnrc
     echo username ryanhugh >> ~/.yarnrc
     echo >> ~/.yarnrc
+    echo "HIII"
     cat ~/.yarnrc
-    # cat ~/.npmrc
+    cat ~/.npmrc
+    echo "HIII2"
 
     yarn login
 
