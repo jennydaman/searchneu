@@ -95,8 +95,11 @@ if [ "$TRAVIS_BRANCH" == "prod" ]; then
 
     # yarn login
 
+    NEWVER=$(./node_modules/semver/bin/semver -i $(npm show searchneu version))
+    echo NEWVER
     # # The new version is one greater than the one currently in prod
-    # yarn publish --new-version $(./node_modules/semver/bin/semver -i $(npm show searchneu version))
+    node ./node_modules/json/lib/json.js  -I -f package.json -e 'this.version="'$NEWVER'"'
+    # yarn publish --new-version 
 
 
 fi
