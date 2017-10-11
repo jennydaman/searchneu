@@ -84,19 +84,19 @@ if [ "$TRAVIS_BRANCH" == "prod" ]; then
 
 
     # Deploy to npm
-    echo $NPM_TOKEN | base64 --decode > ~/.npmrc
-    echo email ryanhughes624@gmail.com >> ~/.yarnrc
-    echo username ryanhugh >> ~/.yarnrc
-    echo >> ~/.yarnrc
-    echo "HIII"
-    cat ~/.yarnrc
-    cat ~/.npmrc
-    echo "HIII2"
+    # echo $NPM_TOKEN | base64 --decode > ~/.npmrc
+    # echo email ryanhughes624@gmail.com >> ~/.yarnrc
+    # echo username ryanhugh >> ~/.yarnrc
+    # echo >> ~/.yarnrc
+    # echo "HIII"
+    # cat ~/.yarnrc
+    # cat ~/.npmrc
+    # echo "HIII2"
 
-    yarn login
+    # yarn login
 
-    # The new version is one greater than the one currently in prod
-    yarn publish --new-version $(./node_modules/semver/bin/semver -i $(npm show searchneu version))
+    # # The new version is one greater than the one currently in prod
+    # yarn publish --new-version $(./node_modules/semver/bin/semver -i $(npm show searchneu version))
 
 
 fi
