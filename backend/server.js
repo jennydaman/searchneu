@@ -212,6 +212,10 @@ app.get('/search', wrap(async (req, res) => {
 
 // for Facebook verification of the endpoint.
 app.get('/webhook/', async function (req, res) {
+  console.log(req.connection.remoteAddress, 'Tried to send a webhook')
+  res.send('hi')
+  return;
+  
         macros.log(req.query);
         
         let verifyToken = await macros.getEnvVariable('fbVerifyToken')
@@ -227,6 +231,11 @@ app.get('/webhook/', async function (req, res) {
 
 // Respond to the messages
 app.post('/webhook/', function (req, res) {
+  // Disable temporarily
+  console.log(req.connection.remoteAddress, 'Tried to send a webhook')
+  res.send('hi')
+  return;
+
     let messaging_events = req.body.entry[0].messaging
     for (let i = 0; i < messaging_events.length; i++) {
 	    let event = req.body.entry[0].messaging[i]
@@ -289,7 +298,7 @@ app.get('/cookietest', (req, res) => {
 app.get('*', (req, res) => {
   res.setHeader("Content-Type", "text/html; charset=UTF-8");
   if (macros.PROD) {
-    res.sendFile(path.join(__dirname, '..', 'public', 'index.html'));
+    res.sendFile(path.join(process.cwd(), 'public', 'index.html'));
   }
   else {
     res.write(middleware.fileSystem.readFileSync(path.join(webpackConfig.output.path, 'index.html')));
@@ -303,7 +312,7 @@ if (macros.DEV) {
   port = 5000;
 }
 else {
-  port = 80;
+  port = 5000;
 }
 
 
