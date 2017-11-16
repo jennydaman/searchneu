@@ -1,26 +1,13 @@
 /*
- * Copyright (c) 2017 Ryan Hughes
- *
- * This file is part of CoursePro.
- *
- * CoursePro is free software: you can redistribute it and/or modify
- * it under the terms of the GNU Affero General Public License
- * version 3 as published by the Free Software Foundation.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU Affero General Public License for more details.
- *
- * You should have received a copy of the GNU Affero General Public License
- * along with this program. If not, see <http://www.gnu.org/licenses/>. 
+ * This file is part of Search NEU and licensed under AGPL3. 
+ * See the license file in the root folder for details. 
  */
 
-'use strict';
 var _ = require('lodash')
 var he = require('he')
 var moment = require('moment')
 import Keys from '../Keys'
+import macros from '../commonMacros';
 
 // import RequisiteNode from './RequisiteNode';
 var Section = require('./Section')
@@ -167,7 +154,7 @@ Class.prototype.convertServerRequisites = function (data) {
 	}
 
 	if (!retVal) {
-		elog("ERROR creating jawn", retVal, data, retVal == data)
+		macros.error("ERROR creating jawn", retVal, data, retVal == data)
 		return
 	}
 
@@ -237,11 +224,11 @@ Class.prototype.flattenCoreqs = function () {
 // called once
 Class.prototype.updateWithData = function (config) {
 	if (config instanceof Class) {
-		elog('wtf', config)
+		macros.error('wtf', config)
 	}
 
 	if (config.title || config.allParents || config.missing || config.updateWithData) {
-		elog();
+		macros.error();
 	}
 
 	//copy over all other attr given
@@ -268,7 +255,7 @@ Class.prototype.updateWithData = function (config) {
 
 	if (config.prereqs) {
 		if (!config.prereqs.values || !config.prereqs.type) {
-			elog('prereqs need values ad type')
+			macros.error('prereqs need values ad type')
 		}
 		else {
 			this.prereqs.type = config.prereqs.type
@@ -287,7 +274,7 @@ Class.prototype.updateWithData = function (config) {
 
 	if (config.coreqs) {
 		if (!config.coreqs.values || !config.coreqs.type) {
-			elog('coreqs need values ad type')
+			macros.error('coreqs need values ad type')
 		}
 		else {
 			this.coreqs.type = config.coreqs.type
@@ -440,7 +427,7 @@ Class.prototype.sectionsHaveExam = function () {
 
 Class.prototype.loadSectionsFromSectionMap = function (sectionMap) {
 	if (this.isString) {
-		elog('ERROR cant load sections of !class or string')
+		macros.error('ERROR cant load sections of !class or string')
 		return callback('!class or string')
 	};
 
