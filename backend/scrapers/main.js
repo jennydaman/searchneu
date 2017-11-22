@@ -1,13 +1,13 @@
 /*
- * This file is part of Search NEU and licensed under AGPL3. 
- * See the license file in the root folder for details. 
+ * This file is part of Search NEU and licensed under AGPL3.
+ * See the license file in the root folder for details.
  */
 
-import matchEmployees from './employees/matchEmployees';
 import fs from 'fs-promise';
-
+import matchEmployees from './employees/matchEmployees';
 import macros from '../macros';
 import classes from './classes/main';
+
 
 // Main file for scraping
 // Run this to run all the scrapers
@@ -20,23 +20,20 @@ import classes from './classes/main';
 
 
 if (process.env.TRAVIS_EVENT_TYPE !== 'cron' && process.env.TRAVIS) {
-  console.log('not running on travis event', process.env.TRAVIS_EVENT_TYPE);
+  macros.log('not running on travis event', process.env.TRAVIS_EVENT_TYPE);
   process.exit(0);
 }
 
 
 if (process.env.TRAVIS && macros.DEV) {
-  console.log('Not running DEV mode on travis');
+  macros.log('Not running DEV mode on travis');
   process.exit(1);
 }
 
 
-class Main{
-
-  async main(semesterly=false) {
-
-
-    let classesPromise = classes.main(['neu'], semesterly=semesterly)
+class Main {
+  async main(semesterly = false) {
+    const classesPromise = classes.main(['neu'], semesterly);
 
     // If scraping stuff for semesterly, scrape just the classes
     if (semesterly) {
@@ -44,13 +41,14 @@ class Main{
     }
 
 
-    let promises = [classesPromise, matchEmployees.main()]
+    const promises = [classesPromise, matchEmployees.main()];
 
     await Promise.all(promises);
 
-    console.log('done scrapers/main.js');
-  }
+    macros.log('done scrapers/main.js');
 
+    return null;
+  }
 }
 
 
@@ -58,12 +56,13 @@ const instance = new Main();
 
 
 async function localRun() {
-  
   if (require.main === module) {
-    let semesterlyData = await instance.main(true);
+    // Change it to .main(true) to run the Semester.ly code
+    const semesterlyData = await instance.main(false);
 
     if (semesterlyData) {
-      await fs.writeFile(`courses2.json`, JSON.stringify(semesterlyData));
+      await fs.writeFile('semesterly_courses.json', JSON.stringify(semesterlyData));
+      macros.log('Saved output for semesterly!');
     }
   }
 }

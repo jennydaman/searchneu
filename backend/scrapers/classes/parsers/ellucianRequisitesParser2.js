@@ -1,6 +1,6 @@
 /*
- * This file is part of Search NEU and licensed under AGPL3. 
- * See the license file in the root folder for details. 
+ * This file is part of Search NEU and licensed under AGPL3.
+ * See the license file in the root folder for details.
  */
 
 
@@ -44,7 +44,6 @@ import EllucianBaseParser from './ellucianBaseParser';
 // eg https://wl11gp.neu.edu/udcprod8/bwckschd.p_disp_detail_sched?term_in=201730&crn_in=35984
 
 class EllucianRequisitesParser extends EllucianBaseParser.EllucianBaseParser {
-
   // This entire process is synchronous, so keep track of the intermediary values here.
   constructor() {
     super();
@@ -120,7 +119,7 @@ class EllucianRequisitesParser extends EllucianBaseParser.EllucianBaseParser {
     data = this.simplifyRequirementsBase(data);
     if (!data.values || !data.type) {
       return {
-        type: 'or',
+        type: 'and',
         values: [data],
       };
     }
@@ -363,7 +362,7 @@ class EllucianRequisitesParser extends EllucianBaseParser.EllucianBaseParser {
 
     if (!this.currFrame.type) {
       if (!this.currFrame.values.length < 2) {
-        this.currFrame.type = 'or';
+        this.currFrame.type = 'and';
       } else {
         macros.error(this.currFrame);
       }

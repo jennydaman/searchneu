@@ -1,6 +1,6 @@
 /*
- * This file is part of Search NEU and licensed under AGPL3. 
- * See the license file in the root folder for details. 
+ * This file is part of Search NEU and licensed under AGPL3.
+ * See the license file in the root folder for details.
  */
 
 .container {
@@ -11,7 +11,9 @@
     padding: 20px;
 }
 .header {
-    background: #fafafb;
+    outline: 0;
+    border: none;
+    background: #fafafa;
     padding: 11px;
     margin-top: 0px;
     border-radius: 5px;
@@ -23,6 +25,8 @@
     padding: 10px;
     color: #888888;
     font-weight: 600;
+    outline: 0;
+    border: none;
     border-top: 1px solid #ddd;
 }
 .displayNone {
@@ -30,4 +34,30 @@
 }
 .reqClassLink {
   cursor: pointer;
+}
+
+.dynamicText {
+    color: #969696;
+    font-weight: 500;
+    font-size: 30px thefont, monospace;
+}
+
+.prereqShowMore {
+    cursor: pointer;
+    padding: 1px;
+    display: inline;
+    outline: 0;
+    border: none;
+}
+
+.prereqShowMoreArrow:after {
+    font-size: 30px thefont, monospace;
+    height: 19px;
+    font-weight: 500;
+    display: inline-block;
+    overflow: hidden;
+    font-family: thefont;
+    vertical-align: -3px;
+    content: '\279C';
+    padding-left: 3px;
 }

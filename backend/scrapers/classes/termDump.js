@@ -1,6 +1,6 @@
 /*
- * This file is part of Search NEU and licensed under AGPL3. 
- * See the license file in the root folder for details. 
+ * This file is part of Search NEU and licensed under AGPL3.
+ * See the license file in the root folder for details.
  */
 
 import path from 'path';
@@ -14,7 +14,6 @@ import Keys from '../../../common/Keys';
 
 
 class TermDump {
-
   async main(termDump) {
     const termMapDump = {};
 
@@ -53,7 +52,7 @@ class TermDump {
       }).getHash();
 
       if (!termMapDump[termHash]) {
-        console.log('Found subject with no class?');
+        macros.log('Found subject with no class?');
         termMapDump[termHash] = {
           classMap: {},
           sectionMap: {},
@@ -75,7 +74,7 @@ class TermDump {
       }).getHash();
 
       if (!termMapDump[termHash]) {
-        console.log('Found section with no class?', termHash, hash);
+        macros.log('Found section with no class?', termHash, hash);
         termMapDump[termHash] = {
           classMap: {},
           sectionMap: {},
@@ -90,9 +89,9 @@ class TermDump {
 
     const promises = [];
 
-    for (const termHash in termMapDump) {
-      const value = termMapDump[termHash];
+    const values = Object.values(termMapDump);
 
+    for (const value of values) {
       // Put them in a different file.
       if (!value.host || !value.termId) {
         macros.error('No host or Id?', value);

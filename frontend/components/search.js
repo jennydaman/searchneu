@@ -1,14 +1,14 @@
 /*
- * This file is part of Search NEU and licensed under AGPL3. 
- * See the license file in the root folder for details. 
+ * This file is part of Search NEU and licensed under AGPL3.
+ * See the license file in the root folder for details.
  */
 
 import URI from 'urijs';
 
+import macros from './macros';
 import request from './request';
 
 class Search {
-
   constructor() {
     // Mapping of search term to an array of the results that have been loaded so far.
     this.cache = {};
@@ -26,13 +26,13 @@ class Search {
     query = query.trim().toLowerCase();
 
     if (!query || query.length === 0) {
-      console.log("No query given in frontend/search.js. Returning empty array.", query, termCount)
-      return []
+      macros.log('No query given in frontend/search.js. Returning empty array.', query, termCount);
+      return [];
     }
 
     if (!termId || termId.length !== 6) {
-      console.log("No termId given in frontend/search.js. Returning empty array.", termId, termCount)
-      return []
+      macros.log('No termId given in frontend/search.js. Returning empty array.', termId, termCount);
+      return [];
     }
 
     let existingTermCount = 0;
@@ -42,12 +42,12 @@ class Search {
 
     // Cache hit
     if (termCount <= existingTermCount && existingTermCount > 0 || this.allLoaded[termId + query]) {
-      console.log('Cache hit.', this.allLoaded[termId + query]);
+      macros.log('Cache hit.', this.allLoaded[termId + query]);
       return this.cache[termId + query].slice(0, termCount);
     }
 
     // If we got here, we need to hit the network.
-    console.log('Requesting terms ', existingTermCount, 'to', termCount);
+    macros.log('Requesting terms ', existingTermCount, 'to', termCount);
 
 
     const url = new URI('/search').query({
@@ -57,13 +57,13 @@ class Search {
       maxIndex: termCount,
     }).toString();
 
-    let startTime = Date.now()
+    const startTime = Date.now();
     const results = await request.get(url);
-    window.amplitude.logEvent('Search Timing', {query: query, time: Date.now() - startTime});
+    window.amplitude.logEvent('Search Timing', { query: query, time: Date.now() - startTime });
 
     if (results.error) {
-      console.error("Error with networking request", results.error)
-      return []
+      macros.error('Error with networking request', results.error);
+      return [];
     }
 
 
@@ -80,8 +80,6 @@ class Search {
 
     return this.cache[termId + query];
   }
-
-
 }
 
 export default new Search();

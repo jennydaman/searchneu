@@ -1,9 +1,10 @@
 /*
- * This file is part of Search NEU and licensed under AGPL3. 
- * See the license file in the root folder for details. 
+ * This file is part of Search NEU and licensed under AGPL3.
+ * See the license file in the root folder for details.
  */
- 
+
 import BaseProcessor from './baseProcessor';
+import macros from '../../../macros';
 
 // THIS DOES NOT WORK YET
 // This find classes that are called "lab for " and "recitation for " and "Interactive Learning Seminar for PHYS 1155"
@@ -14,8 +15,6 @@ import BaseProcessor from './baseProcessor';
 
 
 class FindMissingLabs extends BaseProcessor.BaseProcessor {
-
-
   go(query, callback) {
     this.getClassHash(query, (err, keyToRow) => {
       for (const key of Object.keys(keyToRow)) {
@@ -33,10 +32,9 @@ class FindMissingLabs extends BaseProcessor.BaseProcessor {
             continue;
           }
 
-          console.warn(match, name, coreqsArray.length, aClass.desc);
+          macros.warn(match, name, coreqsArray.length, aClass.desc);
         }
       }
-      // console.log('done');
       return callback();
     });
   }

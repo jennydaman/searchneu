@@ -1,20 +1,20 @@
 /*
- * This file is part of Search NEU and licensed under AGPL3. 
- * See the license file in the root folder for details. 
+ * This file is part of Search NEU and licensed under AGPL3.
+ * See the license file in the root folder for details.
  */
 
 import cheerio from 'cheerio';
 import URI from 'urijs';
 
 import Request from './request';
+import macros from '../macros';
 
 const request = new Request('LinkSpider');
 
 class LinkSpider {
-
   async main(inputUrls, depth = 1) {
     if (!inputUrls || inputUrls.length === 0) {
-      console.error('Link Spider needs a starting url');
+      macros.error('Link Spider needs a starting url');
       return null;
     }
 

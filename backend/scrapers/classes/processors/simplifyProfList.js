@@ -1,16 +1,15 @@
 /*
- * This file is part of Search NEU and licensed under AGPL3. 
- * See the license file in the root folder for details. 
+ * This file is part of Search NEU and licensed under AGPL3.
+ * See the license file in the root folder for details.
  */
 
 import _ from 'lodash';
 
+import macros from '../../../macros';
 import BaseProcessor from './baseProcessor';
 
 
 class SimplifyProfList extends BaseProcessor.BaseProcessor {
-
-
   go(termDump) {
     const updatedSections = [];
 
@@ -91,7 +90,7 @@ class SimplifyProfList extends BaseProcessor.BaseProcessor {
 
         if (count > 0) {
           updatedSections.push(section);
-          console.log('Removing ', count, 'profs from ', section.classUid, section.crn);
+          macros.log('Removing ', count, 'profs from ', section.classUid, section.crn);
         }
       });
     });

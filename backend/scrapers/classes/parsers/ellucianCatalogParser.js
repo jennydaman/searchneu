@@ -1,6 +1,6 @@
 /*
- * This file is part of Search NEU and licensed under AGPL3. 
- * See the license file in the root folder for details. 
+ * This file is part of Search NEU and licensed under AGPL3.
+ * See the license file in the root folder for details.
  */
 
 import domutils from 'domutils';
@@ -19,8 +19,6 @@ import ellucianRequisitesParser2 from './ellucianRequisitesParser2';
 const request = new Request('EllucianCatalogParser');
 
 class EllucianCatalogParser extends EllucianBaseParser.EllucianBaseParser {
-
-
   supportsPage(url) {
     return url.indexOf('bwckctlg.p_disp_course_detail') > -1;
   }
@@ -110,14 +108,9 @@ class EllucianCatalogParser extends EllucianBaseParser.EllucianBaseParser {
 
     //find co and pre reqs and restrictions
     const prereqs = ellucianRequisitesParser.parseRequirementSection(url, element.children, 'prerequisites');
-    if (prereqs) {
-      depData.prereqs = prereqs;
-    }
 
     const coreqs = ellucianRequisitesParser.parseRequirementSection(url, element.children, 'corequisites');
-    if (coreqs) {
-      depData.coreqs = coreqs;
-    }
+
 
     //find co and pre reqs and restrictions
     const prereqs2 = ellucianRequisitesParser2.parseRequirementSection(url, element.children, 'prerequisites');
@@ -128,6 +121,14 @@ class EllucianCatalogParser extends EllucianBaseParser.EllucianBaseParser {
     const coreqs2 = ellucianRequisitesParser2.parseRequirementSection(url, element.children, 'corequisites');
     if (!_.isEqual(coreqs, coreqs2)) {
       macros.log('WARNING: coreqs parsed by the new parser are not equal', JSON.stringify(coreqs, null, 4), JSON.stringify(coreqs2, null, 4));
+    }
+
+    if (prereqs2) {
+      depData.prereqs = prereqs2;
+    }
+
+    if (coreqs2) {
+      depData.coreqs = coreqs2;
     }
 
     return depData;
@@ -174,7 +175,7 @@ class EllucianCatalogParser extends EllucianBaseParser.EllucianBaseParser {
     // This is the raw JSON data from the catalog page. No wrapper object with type and value.
     const catalogData = this.parse(resp.body, url);
 
-    // There was an error parsing the catalog data. 
+    // There was an error parsing the catalog data.
     if (!catalogData) {
       return null;
     }
@@ -239,17 +240,16 @@ class EllucianCatalogParser extends EllucianBaseParser.EllucianBaseParser {
       }
     }
 
-    // If no sections were found, add the data from the catalog page the list of classes being returned. 
+    // If no sections were found, add the data from the catalog page the list of classes being returned.
     // In other words, if there are sections, it will return the list of classes processes (because the list of sections can become different classes for now)
     // And if there are no sections, it will just return one class with the info from the catalog page.
     if (classListData.length === 0) {
-
       catalogData.lastUpdateTime = Date.now();
-      
+
       classListData = [{
         type: 'classes',
-        value: catalogData
-      }]
+        value: catalogData,
+      }];
     }
 
     // Possibly save to dev
@@ -263,13 +263,11 @@ class EllucianCatalogParser extends EllucianBaseParser.EllucianBaseParser {
   }
 
   async test() {
-    // const output = await module.exports.main('https://wl11gp.neu.edu/udcprod8/bwckctlg.p_disp_course_detail?cat_term_in=201810&subj_code_in=FINA&crse_numb_in=6283');
+    // const output = await this.main('https://wl11gp.neu.edu/udcprod8/bwckctlg.p_disp_course_detail?cat_term_in=201810&subj_code_in=FINA&crse_numb_in=6283');
     // const output = await this.main('https://wl11gp.neu.edu/udcprod8/bwckctlg.p_disp_course_detail?cat_term_in=201810&subj_code_in=ENGW&crse_numb_in=3302');
     const output = await this.main('https://wl11gp.neu.edu/udcprod8/bwckctlg.p_disp_course_detail?cat_term_in=201830&subj_code_in=GAME&crse_numb_in=3700');
-    console.log(output)
+    macros.log(output);
   }
-
-
 }
 
 

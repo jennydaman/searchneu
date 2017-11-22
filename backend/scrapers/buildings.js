@@ -1,13 +1,13 @@
 /*
- * This file is part of Search NEU and licensed under AGPL3. 
- * See the license file in the root folder for details. 
+ * This file is part of Search NEU and licensed under AGPL3.
+ * See the license file in the root folder for details.
  */
 
 import cheerio from 'cheerio';
 import URI from 'urijs';
 import tj from '@mapbox/togeojson';
 import DOMParser from 'xmldom';
-import path from 'path';
+// import path from 'path';
 
 import macros from '../macros';
 import request from './request';
@@ -75,13 +75,13 @@ async function main() {
 
   const json = tj.kml(new DOMParser.DOMParser().parseFromString(kmlRequest.body));
 
-  console.log(json.features);
+  macros.log(json.features);
 
-  const outputFile = path.join(macros.DEV_DATA_DIR, 'buildings.json');
+  // const outputFile = path.join(macros.DEV_DATA_DIR, 'buildings.json');
 
   if (macros.DEV) {
-    await cache.set('dev_data', 'buildings', 'main', json.features)
-    console.log('buildings file saved!');
+    await cache.set('dev_data', 'buildings', 'main', json.features);
+    macros.log('buildings file saved!');
   }
 
 

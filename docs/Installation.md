@@ -33,7 +33,7 @@ yarn start # or npm run start
 Chrome dev tools are great for debugging both Node.js code and JavaScript code in a browser. You can debug a Node.js script by running `babel-node` (or `node`) with these arguments:
 
 ```bash
-babel-node --debug-brk --inspect filename.js
+babel-node --debug --inspect-brk filename.js
 ```
 
 If Node.js ever runs out of memory and crashes, run either `babel-node` or `node` with `--max_old_space_size=8192`. This will let Node.js use up to 8GB of RAM. Example:
@@ -83,7 +83,7 @@ yarn build_backend # build only the backend
 
 ### Linting
 
-Some of the code follows the ESLint config. Right now it is not required that code pass the linting but it may be required in the future. 
+Some of the code follows the ESLint config. All the code in the codebase should pass these linting checks. 
 
 ```bash
 yarn lint

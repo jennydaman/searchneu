@@ -1,13 +1,12 @@
 /*
- * This file is part of Search NEU and licensed under AGPL3. 
- * See the license file in the root folder for details. 
+ * This file is part of Search NEU and licensed under AGPL3.
+ * See the license file in the root folder for details.
  */
 
 import Class from './Class';
-import Keys from '../Keys';
+import macros from '../commonMacros';
 
-export default class DataLib {
-
+class DataLib {
   constructor(termDump) {
     this.termDump = termDump;
   }
@@ -18,7 +17,7 @@ export default class DataLib {
 
   static loadData(termDump) {
     if (!termDump.classMap || !termDump.sectionMap) {
-      console.error('invalid termDump', termDump);
+      macros.error('invalid termDump', termDump);
       return null;
     }
 
@@ -54,7 +53,7 @@ export default class DataLib {
     });
 
     // Turn this into a analytics call when that is working
-    console.log('send', 'timing', subject, 'subject', Date.now() - startTime);
+    macros.log('send', 'timing', subject, 'subject', Date.now() - startTime);
 
     return retVal;
   }
@@ -71,6 +70,6 @@ export default class DataLib {
   getSectionServerDataFromHash(hash) {
     return this.termDump.sectionMap[hash];
   }
-
 }
 
+export default DataLib;

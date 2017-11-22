@@ -1,6 +1,6 @@
 /*
- * This file is part of Search NEU and licensed under AGPL3. 
- * See the license file in the root folder for details. 
+ * This file is part of Search NEU and licensed under AGPL3.
+ * See the license file in the root folder for details.
  */
 
 import cheerio from 'cheerio';
@@ -22,8 +22,6 @@ const request = new Request('EllucianSectionParser');
 //good thing tho, is that it is easily scrape-able and does not require login to access seats available
 
 class EllucianSectionParser extends ellucianBaseParser.EllucianBaseParser {
-
-
   async main(url) {
     // Possibly load from DEV
     if (macros.DEV && require.main !== module) {
@@ -160,14 +158,8 @@ class EllucianSectionParser extends ellucianBaseParser.EllucianBaseParser {
 
     //find co and pre reqs and restrictions
     const prereqs = ellucianRequisitesParser.parseRequirementSection(url, element.parent.children, 'prerequisites');
-    if (prereqs) {
-      retVal.prereqs = prereqs;
-    }
 
     const coreqs = ellucianRequisitesParser.parseRequirementSection(url, element.parent.children, 'corequisites');
-    if (coreqs) {
-      retVal.coreqs = coreqs;
-    }
 
     //find co and pre reqs and restrictions
     const prereqs2 = ellucianRequisitesParser2.parseRequirementSection(url, element.parent.children, 'prerequisites');
@@ -180,6 +172,14 @@ class EllucianSectionParser extends ellucianBaseParser.EllucianBaseParser {
       macros.log('WARNING: coreqs parsed by the new parser are not equal', JSON.stringify(coreqs, null, 4), JSON.stringify(coreqs2, null, 4));
     }
 
+    if (prereqs2) {
+      retVal.prereqs = prereqs2;
+    }
+
+
+    if (coreqs2) {
+      retVal.coreqs = coreqs2;
+    }
 
     //grab credits
     const text = domutils.getText(element.parent).toLowerCase();
@@ -211,21 +211,18 @@ class EllucianSectionParser extends ellucianBaseParser.EllucianBaseParser {
       // <OPTION VALUE="TOR">Toronto, Canada
       // <OPTION VALUE="VTL">Online
 
-      const possibleCampuses = {
+      // const possibleCampuses = {
 
-        // This one is kindof weird. It is used when the class does not occur in a classroom.
-        // For example, Music Lessons, Independant study, Directed Study, Research, etc
-        // Where all the teaching/learning would probably happen just 1:1 somewhere on campus,
-        // but in some cases it could happen remotely too.
-        'no campus, no room needed campus': 'Boston',
-        'burlington campus': 'Burlington',
-        'boston, main campus': 'Boston',
-        'boston campus': 'Boston',
-        'seattle, wa campus': 'Seattle',
-      };
-
-
-      
+      //   // This one is kindof weird. It is used when the class does not occur in a classroom.
+      //   // For example, Music Lessons, Independant study, Directed Study, Research, etc
+      //   // Where all the teaching/learning would probably happen just 1:1 somewhere on campus,
+      //   // but in some cases it could happen remotely too.
+      //   'no campus, no room needed campus': 'Boston',
+      //   'burlington campus': 'Burlington',
+      //   'boston, main campus': 'Boston',
+      //   'boston campus': 'Boston',
+      //   'seattle, wa campus': 'Seattle',
+      // };
 
 
       // Grab whether the class is an online class or not
@@ -265,9 +262,8 @@ class EllucianSectionParser extends ellucianBaseParser.EllucianBaseParser {
 
   async test() {
     const output = await this.main('https://wl11gp.neu.edu/udcprod8/bwckschd.p_disp_detail_sched?term_in=201810&crn_in=14579');
-    console.log(output);
+    macros.log(output);
   }
-
 }
 
 
