@@ -335,7 +335,7 @@ app.post('/webhook/', (req, res) => {
       const text = event.message.text;
 
       if (text === 'test') {
-        notifyer.sendFBNotification(sender, 'CS 1800 now has 1 seat avalible!! Check it out on https://searchneu.com/cs1800 !');
+        notifyer.sendFBNotification(sender, 'CS 1800 now has 1 seat available!! Check it out on https://searchneu.com/cs1800 !');
       } else {
         notifyer.sendFBNotification(sender, "Yo! 👋😃😆 I'm the Search NEU bot. Someday, I will notify you when seats open up in classes that are full. 😎👌🍩 But that day is not today...");
       }
@@ -404,7 +404,7 @@ app.use((err, req, res) => {
   return res.send(err);
 });
 
-
+// If this port is ever changed we would also need to update the port in Facebook's whitelisted_domains
 let port;
 if (macros.DEV) {
   port = 5000;
