@@ -5,6 +5,7 @@
 
 import BaseProcessor from './baseProcessor';
 import Keys from '../../../../common/Keys';
+import macros from '../../../macros';
 
 /**
  * Adds the prerequsite-for field for classes that are a predecessor for
@@ -22,6 +23,10 @@ class AddPreRequisiteFor extends BaseProcessor.BaseProcessor {
   go(termDump) {
     for (const aClass of termDump.classes) {
       const key = Keys.create(aClass).getHash();
+
+      // Reset all the prereqsFor arrays at the beginning of each time this is ran over a termDump.
+      this.initializeArray(aClass);
+
       this.classMap[key] = aClass;
     }
 
@@ -63,16 +68,18 @@ class AddPreRequisiteFor extends BaseProcessor.BaseProcessor {
         host: mainClass.host,
         termId: mainClass.termId,
         subject: node.subject,
-        classUid: node.classUid,
+        classId: node.classId,
       }).getHash();
 
       const nodeRef = this.classMap[find];
 
-      this.initializeArray(nodeRef);
+      if (!nodeRef) {
+        macros.error('Unable to find ref for', find, node, mainClass);
+        return;
+      }
 
       const classData = {
         subject: mainClass.subject,
-        classUid: mainClass.classUid,
         classId: mainClass.classId,
       };
 
@@ -96,24 +103,20 @@ class AddPreRequisiteFor extends BaseProcessor.BaseProcessor {
   }
 
   /**
-   * Creates the fields 'optPrereqsFor' and 'prereqsFor' in nodeRef, if and
-   * only if they haven't been initialized already.
+   * Creates the fields 'optPrereqsFor' and 'prereqsFor' in nodeRef.
    *
    * @param {Class} nodeRef the class in our tree that we're creating the
    * arrays for.
    */
   initializeArray(nodeRef) {
-    // Checks and creates the optPrereqsFor field in our class, if needed
-    if (nodeRef.optPrereqsFor === undefined) {
-      nodeRef.optPrereqsFor = {
-        values: [],
-      };
-    }
-    if (nodeRef.prereqsFor === undefined) {
-      nodeRef.prereqsFor = {
-        values: [],
-      };
-    }
+    // Creates the optPrereqsFor field in our class.
+    nodeRef.optPrereqsFor = {
+      values: [],
+    };
+
+    nodeRef.prereqsFor = {
+      values: [],
+    };
   }
 
   // Sorts the prereqs for in alphabetical order.

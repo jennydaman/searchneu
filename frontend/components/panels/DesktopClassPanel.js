@@ -14,6 +14,7 @@ import baseCss from './BaseClassPanel.css';
 import macros from '../macros';
 import BaseClassPanel from './BaseClassPanel';
 import DesktopSectionPanel from './DesktopSectionPanel';
+import SignUpForNotifications from '../SignUpForNotifications';
 
 
 // Merge the base css and the css specific to desktop panels
@@ -29,8 +30,10 @@ const cx = classNames.bind(css);
 // If mobile, uses MobileSectionPanel to show the sections.
 // The code for desktop is inside this file.
 
+// Note, if you do override the constructor,
+// Don't do `this.state = {...}`, because the state is already setup in the parent react component
+// instead just do this.state.something = 5;
 
-// DesktopClassPanel page component
 class DesktopClassPanel extends BaseClassPanel {
   static propTypes = {
     aClass: PropTypes.object.isRequired,
@@ -71,8 +74,6 @@ class DesktopClassPanel extends BaseClassPanel {
 
     // Also show the waitlist if any of the sections have less than 10 seats left.
     // The number 10 is just an arbitrary decision and can be changed in the future.
-    // const foundSectionWithLessThanTenSeats = false;
-
     for (const section of aClass.sections) {
       if (section.seatsRemaining < 10) {
         return true;
@@ -99,9 +100,9 @@ class DesktopClassPanel extends BaseClassPanel {
       }
 
       // Add the Online sections head if there are any sections that are online
-      // const showOnlineColumn = aClass.getHasOnlineSections();
-
       const showWaitList = this.shouldShowWaitlist();
+
+      const showHonorsColumn = aClass.getHasHonorsSections();
 
       sectionTable = (
         <table className={ `ui celled striped table ${css.resultsTable}` }>
@@ -126,6 +127,12 @@ class DesktopClassPanel extends BaseClassPanel {
                 }) }
               > Waitlist seats
               </th>
+              <th
+                className={ cx({
+                  displayNone: !showHonorsColumn,
+                }) }
+              > Honors
+              </th>
               <th> Link </th>
             </tr>
           </thead>
@@ -134,7 +141,13 @@ class DesktopClassPanel extends BaseClassPanel {
               This tr is hidden so the first visible row is a dark stripe instead of the second one. */}
             <tr className={ css.sectionTableFirstRow } />
             {this.state.renderedSections.map((section) => {
-              return <DesktopSectionPanel key={ section.crn } showWaitList={ showWaitList } shouldShowExamColumns={ aClass.sectionsHaveExam() } section={ section } />;
+              return (<DesktopSectionPanel
+                key={ section.crn }
+                showWaitList={ showWaitList }
+                shouldShowExamColumns={ aClass.sectionsHaveExam() }
+                showHonorsColumn={ showHonorsColumn }
+                section={ section }
+              />);
             })}
           </tbody>
         </table>
@@ -177,6 +190,10 @@ class DesktopClassPanel extends BaseClassPanel {
             <div className={ css.rightPanel }>
               <div data-tip='Check neu.edu for possible updates'> Updated {aClass.getLastUpdateString()}</div>
               {creditsString}
+              <div>
+                <SignUpForNotifications aClass={ aClass } />
+              </div>
+
             </div>
           </div>
           {sectionTable}

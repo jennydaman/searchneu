@@ -5,7 +5,7 @@
 
 import path from 'path';
 import cheerio from 'cheerio';
-import fs from 'fs-promise';
+import fs from 'fs-extra';
 
 import macros from '../../../../macros';
 import ellucianRequisitesParser from '../ellucianRequisitesParser2';
@@ -130,20 +130,20 @@ it('simplifyRequirements shoudl work', () => {
       type: 'or',
       values: [{
         subject: 'PHYS',
-        classUid: '1148_1041629977',
+        classId: '1148',
       }, {
         subject: 'PHYS',
-        classUid: '1148_1041629977',
+        classId: '1148',
       }],
     }],
   })).toEqual({
     type: 'or',
     values: [{
       subject: 'PHYS',
-      classUid: '1148_1041629977',
+      classId: '1148',
     }, {
       subject: 'PHYS',
-      classUid: '1148_1041629977',
+      classId: '1148',
     }],
   });
 });

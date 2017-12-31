@@ -43,7 +43,13 @@ class Cssh {
     }
 
     // Parse the first name and the last name from the given name
-    const { firstName, lastName } = macros.parseNameWithSpaces(obj.name);
+    const namesParsed = macros.parseNameWithSpaces(obj.name);
+    if (!namesParsed) {
+      macros.error('Unable to parse names', obj.name);
+      return {};
+    }
+
+    const { firstName, lastName } = namesParsed;
 
     if (firstName && lastName) {
       obj.firstName = firstName;
@@ -171,7 +177,7 @@ class Cssh {
 
   async main() {
     if (macros.DEV && require.main !== module) {
-      const devData = await cache.get('dev_data', this.constructor.name, 'main');
+      const devData = await cache.get(macros.DEV_DATA_DIR, this.constructor.name, 'main');
       if (devData) {
         return devData;
       }
@@ -202,7 +208,7 @@ class Cssh {
     const people = await Promise.all(promises);
 
     if (macros.DEV) {
-      await cache.set('dev_data', this.constructor.name, 'main', people);
+      await cache.set(macros.DEV_DATA_DIR, this.constructor.name, 'main', people);
       macros.log(people.length, 'cssh people saved to a file!');
     }
 

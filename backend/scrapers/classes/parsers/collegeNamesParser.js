@@ -20,21 +20,12 @@
 
 
 import asyncjs from 'async';
-import realWhois from 'whois';
+import whois from 'whois';
 
 import macros from '../../../macros';
 import cache from '../../cache';
 import BaseParser from './baseParser';
-import mockWhois from './tests/mockWhois';
 
-
-let whois;
-
-if (macros.TESTS) {
-  whois = mockWhois;
-} else {
-  whois = realWhois;
-}
 
 const staticHosts = [
   {
@@ -54,7 +45,7 @@ const staticHosts = [
 class CollegeNamesParser extends BaseParser.BaseParser {
   async main(hostname) {
     if (macros.DEV && require.main !== module) {
-      const devData = await cache.get('dev_data', this.constructor.name, hostname);
+      const devData = await cache.get(macros.DEV_DATA_DIR, this.constructor.name, hostname);
       if (devData) {
         return devData;
       }
@@ -63,7 +54,7 @@ class CollegeNamesParser extends BaseParser.BaseParser {
     const title = await this.getTitle(hostname);
 
     if (macros.DEV) {
-      await cache.set('dev_data', this.constructor.name, hostname, title);
+      await cache.set(macros.DEV_DATA_DIR, this.constructor.name, hostname, title);
       macros.log('CollegeNamesParser file saved!');
     }
 

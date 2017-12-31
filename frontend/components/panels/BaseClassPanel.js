@@ -39,9 +39,11 @@ class BaseClassPanel extends React.Component {
       renderedSections: this.props.aClass.sections.slice(0, sectionsShownByDefault),
       unrenderedSections: this.props.aClass.sections.slice(sectionsShownByDefault),
     };
+
+    this.onShowMoreClick = this.onShowMoreClick.bind(this);
   }
 
-  onShowMoreClick = () => {
+  onShowMoreClick() {
     macros.log('Adding more sections to the bottom.');
 
     // Get the length of the our sections
@@ -162,25 +164,8 @@ class BaseClassPanel extends React.Component {
           }
           processedSubjectClassIds[childBranch.subject + childBranch.classId] = true;
 
-          //   href={"/" + encodeURIComponent(childBranch.subject + ' ' + childBranch.classId)}
-
-          // let thethiing ={
-          //   host: aClass.host,
-          //   termId: aClass.termId,
-          //   subject: childBranch.subject,
-          //   classUid: childBranch.classUid,
-          // };
-
-          // let oldthing = Keys.create(childBranch).getHash();
-
-          // if (oldthing !== Keys.create(thethiing).getHash()) {
-          //   debugger
-          // }
-
           // When adding support for right click-> open in new tab, we might also be able to fix the jsx-a11y/anchor-is-valid errors.
           // They are disabled for now.
-
-
           const hash = `${childBranch.subject} ${childBranch.classId}`;
 
           const element = (
