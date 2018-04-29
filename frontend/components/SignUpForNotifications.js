@@ -5,7 +5,7 @@
 
 import React from 'react';
 import PropTypes from 'prop-types';
-import { Button } from 'semantic-ui-react';
+import { Button, Modal } from 'semantic-ui-react';
 
 import macros from './macros';
 import authentication from './authentication';
@@ -23,23 +23,49 @@ class SignUpForNotifications extends React.Component {
     aClass: PropTypes.object.isRequired,
   };
 
+  static hasAdblock = false;
+
   constructor(props) {
     super(props);
 
     this.state = {
       showMessengerButton: false,
+      showAdblockMessage: false,
     };
 
-
+    this.facebookScopeRef = null;
     this.onSubscribeToggleChange = this.onSubscribeToggleChange.bind(this);
+    this.closeModal = this.closeModal.bind(this);
   }
 
   // After the button is added to the DOM, we need to tell FB's SDK that it was added to the code and should be processed.
   // This will tell FB's SDK to scan all the child elements of this.facebookScopeRef to look for fb-send-to-messenger buttons.
   componentDidUpdate() {
-    if (this.facebookScopeRef) {
-      window.FB.XFBML.parse(this.facebookScopeRef);
+    if (!this.facebookScopeRef) {
+      return;
     }
+
+    window.FB.XFBML.parse(this.facebookScopeRef);
+
+    const iframe = this.facebookScopeRef.querySelector('iframe');
+
+    if (!iframe) {
+      macros.error('No iframe?');
+      return;
+    }
+
+    iframe.onload = () => {
+      // Check to see if the plugin was successfully rendered
+      const ele = this.facebookScopeRef.querySelector('.sendToMessengerButton > span');
+
+      // If has adblock and haven't shown the warning yet, show the warning.
+      if (ele.offsetHeight === 0 && ele.offsetWidth === 0 && !this.constructor.hasAdblock) {
+        this.setState({
+          showAdblockMessage: true,
+        });
+        this.constructor.hasAdblock = true;
+      }
+    };
   }
 
   // Updates the state to show the button.
@@ -87,33 +113,51 @@ class SignUpForNotifications extends React.Component {
     );
   }
 
-  render() {
-    if (window.location.hash !== '#fbtest') {
-      return null;
-    }
+  closeModal() {
+    this.setState({
+      showAdblockMessage: false,
+    });
+  }
 
+  render() {
     let content = null;
 
     if (this.state.showMessengerButton) {
-      content = (
-        <div className='facebookButtonContainer'>
-          <div className='sendToMessengerButtonLabel'>
-            Click this button to continue
+      if (this.constructor.hasAdblock) {
+        content = <Button basic content='Disable adblock to continue' className='diableAdblockButton' />;
+      } else {
+        content = (
+          <div className='facebookButtonContainer'>
+            <div className='sendToMessengerButtonLabel'>
+              Click this button to continue
+            </div>
+            {this.getSendToMessengerButton()}
           </div>
-          {this.getSendToMessengerButton()}
-        </div>
-      );
+        );
+      }
     } else if (this.props.aClass.sections.length === 0) {
       content = <Button basic onClick={ this.onSubscribeToggleChange } content='Get notified when sections are added!' className='notificationButton' />;
     } else if (this.props.aClass.isAtLeastOneSectionFull()) {
       content = <Button basic onClick={ this.onSubscribeToggleChange } content='Get notified when seats open up!' className='notificationButton' />;
     } else {
-      return null;
+      // Show a button that says there are currently seats available.
+      content = <div className='disabledButton notificationButton'>There are seats available in all sections.</div>;
     }
 
     return (
       <div className='sign-up-for-notifications-container'>
         {content}
+        <Modal
+          className='adblock-notification-modal-container'
+          header='Please disable adblock.'
+          open={ this.state.showAdblockMessage }
+          content='This feature does not work when adblock is enabled. Please disable adblock so we can load scripts from Facebook.'
+          actions={ [
+            {
+ key: 'done', content: 'Ok', positive: true, onClick: this.closeModal,
+},
+          ] }
+        />
       </div>
     );
   }

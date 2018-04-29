@@ -4,6 +4,7 @@
  */
 
 import fs from 'fs-extra';
+import _ from 'lodash';
 
 import DataLib from '../common/classModels/DataLib';
 
@@ -67,8 +68,8 @@ class Updater {
     const classHashToUsers = {};
 
     for (const user of users) {
-      classHashes = user.watchingClasses.concat(classHashes);
-      sectionHashes = user.watchingSections.concat(sectionHashes);
+      classHashes = _.uniq(user.watchingClasses).concat(classHashes);
+      sectionHashes = _.uniq(user.watchingSections).concat(sectionHashes);
 
       for (const classHash of user.watchingClasses) {
         if (!classHashToUsers[classHash]) {
@@ -244,45 +245,45 @@ class Updater {
       }
     }
 
-    if (output.sections) {
-      for (const newSection of output.sections) {
-        const hash = Keys.create(newSection).getHash();
+    for (const newSection of output.sections) {
+      const hash = Keys.create(newSection).getHash();
 
-        const oldSection = this.dataLib.getSectionServerDataFromHash(hash);
+      const oldSection = this.dataLib.getSectionServerDataFromHash(hash);
 
-        // This should never run.
-        // The user should not be able to sign up for a section that didn't exist when they were signing up.
-        if (!oldSection) {
-          macros.error('Section was added?', hash);
-          continue;
+      // This should never run.
+      // The user should not be able to sign up for a section that didn't exist when they were signing up.
+      if (!oldSection) {
+        macros.error('Section was added?', hash);
+        continue;
+      }
+
+      let message;
+
+      if (newSection.seatsRemaining > 0 && oldSection.seatsRemaining <= 0) {
+        // See above comment about space before the exclamation mark.
+        message = `A seat opened up in ${newSection.subject} ${newSection.classId} (CRN: ${newSection.crn}). Check it out at https://searchneu.com/${newSection.subject}${newSection.classId} !`;
+      } else if (newSection.waitRemaining > 0 && oldSection.waitRemaining <= 0) {
+        message = `A waitlist seat opened up in ${newSection.subject} ${newSection.classId} (CRN: ${newSection.crn}). Check it out at https://searchneu.com/${newSection.subject}${newSection.classId} !`;
+      }
+
+      if (message) {
+        const user = sectionHashToUsers[hash];
+        if (!userToMessageMap[user]) {
+          userToMessageMap[user] = [];
         }
 
-        let message;
-
-        if (newSection.seatsRemaining > 0 && oldSection.seatsRemaining <= 0) {
-          // See above comment about space before the exclamation mark.
-          message = `A seat opened up in ${newSection.subject} ${newSection.classId} (CRN: ${newSection.crn}). Check it out at https://searchneu.com/${newSection.subject}${newSection.classId} !`;
-        } else if (newSection.waitRemaining > 0 && oldSection.waitRemaining <= 0) {
-          message = `A waitlist seat opened up in ${newSection.subject} ${newSection.classId} (CRN: ${newSection.crn}). Check it out at https://searchneu.com/${newSection.subject}${newSection.classId} !`;
-        }
-
-        if (message) {
-          const user = sectionHashToUsers[hash];
-          if (!userToMessageMap[user]) {
-            userToMessageMap[user] = [];
-          }
-
-          userToMessageMap[user].push(message);
-        }
+        userToMessageMap[user].push(message);
       }
     }
-
 
     // Loop through the messages and send them.
     for (const fbUserId of Object.keys(userToMessageMap)) {
       for (const message of userToMessageMap[fbUserId]) {
         notifyer.sendFBNotification(fbUserId, message);
       }
+      setTimeout(((facebookUserId) => {
+        notifyer.sendFBNotification(facebookUserId, 'Reply with "stop" to unsubscribe from notifications.');
+      }).bind(this, fbUserId), 100);
     }
 
     // Update dataLib with the updated termDump
