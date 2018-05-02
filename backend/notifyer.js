@@ -18,6 +18,13 @@ const request = new Request('notifyer', {
 class Notifyer {
   // Webhook to respond to Facebook messages.
   async sendFBNotification(sender, text) {
+    if (sender.length !== 16 || sender.includes(',')) {
+      macros.error('Invalid sender ID:', sender);
+      return {
+        error: 'true',
+      };
+    }
+
     const token = await macros.getEnvVariable('fbToken');
 
     if (!token) {
@@ -53,12 +60,12 @@ class Notifyer {
         };
       }
 
-      macros.error('Could not send fb message', sender, text, response.body);
+      macros.warn('Could not send fb message', sender, text, response.body);
       return {
         error: 'true',
       };
     } catch (e) {
-      macros.error('Could not send fb message', sender, text, e.message || e.error || e);
+      macros.warn('Could not send fb message', sender, text, e.message || e.error || e);
       return {
         error: 'true',
       };

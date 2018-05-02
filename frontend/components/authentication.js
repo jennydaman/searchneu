@@ -24,7 +24,20 @@ class Authentication {
       window.fbAsyncInit = this.initFB.bind(this);
     }
 
+    // Keeps track of whether the plugin has rendered succesfully at least once.
+    // If it has rendered at least once, the user must not have adblock
+    this.successfullyRendered = false;
+
     this.onSendToMessengerClick = this.onSendToMessengerClick.bind(this);
+
+    this.downloadUserData();
+  }
+
+  // Downloads the user data from the server.
+  // Send the loginKey and the facebookMessengerId (if we have it).
+  // Save the facebookMessengerId when the server responds (the server can respond to this request a lot faster when given the facebookMessengerId).
+  downloadUserData() {
+
   }
 
 
@@ -86,6 +99,7 @@ class Authentication {
   onSendToMessengerClick(e) {
     if (e.event === 'rendered') {
       macros.log('Plugin was rendered');
+      this.successfullyRendered = true;
     } else if (e.event === 'checkbox') {
       const checkboxState = e.state;
       macros.log(`Checkbox state: ${checkboxState}`);
