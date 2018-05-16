@@ -466,6 +466,24 @@ async function onSendToMessengerButtonClick(sender, userPageId, b64ref) {
 
     existingData.watchingSections = _.uniq(existingData.watchingSections.concat(userObject.sectionHashes));
 
+    // Remove any null or undefined values from the watchingClasses and watchingSections
+    // This can happen if data is manually deleted from the DB, and the data is no longer contineous.
+    // (eg index 0 is deleted and Google keeps the others at index 1 and index 2, so index 0 just contains undefined)
+    if (existingData.watchingClasses.includes(undefined) || existingData.watchingSections.includes(undefined)) {
+      macros.log('existing data class hashes or section hashes includes undefined!', existingData.watchingClasses, existingData.watchingSections);
+    }
+
+    if (existingData.watchingClasses.includes(null) || existingData.watchingSections.includes(null)) {
+      macros.log('existing data class hashes or section hashes includes null!', existingData.watchingClasses, existingData.watchingSections);
+    }
+
+    _.pull(existingData.watchingClasses, null);
+    _.pull(existingData.watchingClasses, undefined);
+
+    _.pull(existingData.watchingSections, null);
+    _.pull(existingData.watchingSections, undefined);
+
+
     // Add the login key to the array of login keys stored on this user
     if (!existingData.loginKeys) {
       existingData.loginKeys = [];
@@ -540,7 +558,8 @@ app.post('/webhook/', wrap(async (req, res) => {
       } else if (text === 'What is my facebook messenger sender id?') {
         notifyer.sendFBNotification(sender, sender);
       } else {
-        notifyer.sendFBNotification(sender, "Yo! 👋😃😆 I'm the Search NEU bot. I will notify you when seats open up in classes that are full. Sign up on https://searchneu.com !");
+        // Don't send anything if the user sends a message.
+        // notifyer.sendFBNotification(sender, "Yo! 👋😃😆 I'm the Search NEU bot. I will notify you when seats open up in classes that are full. Sign up on https://searchneu.com !");
       }
     } else if (event.optin) {
       onSendToMessengerButtonClick(sender, req.body.entry[0].id, event.optin.ref);

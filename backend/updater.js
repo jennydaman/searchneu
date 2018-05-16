@@ -74,6 +74,13 @@ class Updater {
     const classHashToUsers = {};
 
     for (const user of users) {
+      // Firebase, for some reason, strips leading 0s from the Facebook messenger id.
+      // Add them back here.
+      while (user.facebookMessengerId.length < 16) {
+        user.facebookMessengerId = `0${user.facebookMessengerId}`;
+      }
+
+
       if (!user.watchingClasses) {
         user.watchingClasses = [];
       }
@@ -101,6 +108,20 @@ class Updater {
         sectionHashToUsers[sectionHash].push(user.facebookMessengerId);
       }
     }
+
+    if (classHashes.includes(undefined) || sectionHashes.includes(undefined)) {
+      macros.log('class hashes or section hashes includes undefined!', classHashes, sectionHashes);
+    }
+
+    if (classHashes.includes(null) || sectionHashes.includes(null)) {
+      macros.log('class hashes or section hashes includes null!', classHashes, sectionHashes);
+    }
+
+    _.pull(classHashes, null);
+    _.pull(classHashes, undefined);
+
+    _.pull(sectionHashes, null);
+    _.pull(sectionHashes, undefined);
 
 
     const sectionHashMap = {};
