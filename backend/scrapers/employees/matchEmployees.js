@@ -328,7 +328,7 @@ class CombineCCISandEmployees {
           }
 
           if (output[attrName] && output[attrName] !== profile[attrName]) {
-            macros.log('Overriding ', output[attrName], '\twith', profile[attrName]);
+            macros.log('Overriding ', output[attrName], '\twith', profile[attrName], '(Name: ', person.firstName, person.lastName, ')');
           }
 
 
