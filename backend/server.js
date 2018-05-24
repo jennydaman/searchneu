@@ -511,7 +511,12 @@ async function onSendToMessengerButtonClick(sender, userPageId, b64ref) {
       facebookMessengerId: sender,
       facebookPageId: userPageId,
       loginKeys: [userObject.loginKey],
+      
+      // How many people they have referred. This only goes up and is never decremented.
       referrals: 0,
+      
+      // This is the user's score. This goes up by 3 for every referral and down by 1 for every notification they are sent.
+      // Each 1 pt advantage means 30 min advantage.
       points: 0,
     };
 

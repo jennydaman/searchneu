@@ -15,6 +15,7 @@ import aoun from './aouuuuuuuuun.png';
 import SplashPage from './SplashPage/SplashPage';
 import search from './search';
 import FeedbackModal from './FeedbackModal';
+import ReferModal from './ReferModal';
 import macros from './macros';
 import ResultsLoader from './ResultsLoader';
 import logo from './logo.svg';
@@ -602,6 +603,7 @@ class Home extends React.Component {
         </div>
 
         <FeedbackModal closeForm={ this.closeForm } feedbackModalOpen={ this.state.feedbackModalOpen } />
+        <ReferModal />
 
         <ReactTooltip effect='solid' className='listIconTooltip' />
       </div>

@@ -8,10 +8,6 @@ import randomstring from 'randomstring';
 import request from './request';
 import macros from './macros';
 
-// TODO: add check to see if the user is logged in or not:
-// https://developers.facebook.com/docs/reference/javascript
-// https://developers.facebook.com/docs/reference/javascript/FB.getLoginStatus
-
 // Eventually, this can be used to get the current user data from the server.
 
 class Authentication {
@@ -29,6 +25,13 @@ class Authentication {
     this.successfullyRendered = false;
 
     this.onSendToMessengerClick = this.onSendToMessengerClick.bind(this);
+    
+    
+    this.facebookApiPromiseResolver = null;
+    
+    this.facebookApiPromise = new Promise((resolve) => {
+      this.facebookApiPromiseResolver = null;
+    })
 
     this.downloadUserData();
   }
@@ -38,6 +41,12 @@ class Authentication {
   // Save the facebookMessengerId when the server responds (the server can respond to this request a lot faster when given the facebookMessengerId).
   downloadUserData() {
 
+  }
+  
+  // This returns the window.FB after it has finished loading.
+  // If you use window.FB directly, there is a chance that it dosen't exist yet and the code may crash.
+  async getFacebookAPI() {
+    return this.facebookApiPromise;
   }
 
 
@@ -51,6 +60,8 @@ class Authentication {
 
 
     window.FB.Event.subscribe('send_to_messenger', this.onSendToMessengerClick);
+    
+    this.facebookApiPromiseResolver(window.FB);
   }
 
   getLoginKey() {
