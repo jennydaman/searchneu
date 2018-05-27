@@ -58,7 +58,6 @@ class Authentication {
       version          : 'v2.11',
     });
 
-
     window.FB.Event.subscribe('send_to_messenger', this.onSendToMessengerClick);
     
     this.facebookApiPromiseResolver(window.FB);

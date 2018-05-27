@@ -37,9 +37,7 @@ class ReferModal extends React.Component {
   
   async initialize() {
     
-    debugger
-    
-    let facebookApi = await authentication.getFacebookApi();
+    let facebookApi = await authentication.getFacebookAPI();
     
     facebookApi.Event.subscribe('send_to_messenger', (e) => {
       if (e.event === 'opt_in') {
