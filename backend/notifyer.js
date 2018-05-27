@@ -25,6 +25,13 @@ class Notifyer {
       };
     }
 
+    // If you want to message yourself in dev mode too, just change this.
+    // This check is here so we don't accidentally message people with dev data.
+    if (!macros.PROD && sender !== '1397905100304615') {
+      macros.log('Refusing to send message to anyone other than Ryan not in prod mode');
+      macros.log('Not sending', sender, text);
+    }
+
     const token = await macros.getEnvVariable('fbToken');
 
     if (!token) {

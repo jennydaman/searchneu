@@ -5,6 +5,7 @@
 
 import fs from 'fs-extra';
 import _ from 'lodash';
+import path from 'path';
 
 import DataLib from '../common/classModels/DataLib';
 
@@ -76,6 +77,12 @@ class Updater {
     for (const user of users) {
       // Firebase, for some reason, strips leading 0s from the Facebook messenger id.
       // Add them back here.
+
+      if (!user.facebookMessengerId) {
+        macros.warn('User has no FB id?', JSON.stringify(user));
+        continue;
+      }
+
       while (user.facebookMessengerId.length < 16) {
         user.facebookMessengerId = `0${user.facebookMessengerId}`;
       }
@@ -180,6 +187,7 @@ class Updater {
     const promises = classes.map((aClass) => {
       return ellucianCatalogParser.main(aClass.prettyUrl).then((newClass) => {
         if (!newClass) {
+          // TODO: This should be changed into a notification that the class probably no longer exists. Shoudn't unsubscribe people.
           macros.warn('New class data is null?', aClass.prettyUrl, aClass);
           return null;
         }
@@ -197,7 +205,19 @@ class Updater {
     // Remove the instances where newClass was null
     _.pull(promises, null);
 
-    const allParsersOutput = await Promise.all(promises);
+    let allParsersOutput;
+
+    try {
+      allParsersOutput = await Promise.all(promises);
+    } catch (e) {
+      macros.warn('ellucianCatalogParser call failed in updater with error:', e);
+      return;
+    }
+
+    // Remove any instances where the output was null.
+    // This can happen if the class at one of the urls that someone was watching dissapeared or was taken down
+    // In this case the output of the ellucianCatalogParser will be null.
+    _.pull(allParsersOutput, null);
 
     const rootNode = {
       type: 'ignore',
@@ -237,6 +257,9 @@ class Updater {
 
       const oldSections = this.dataLib.getSectionsInTerm(termId);
 
+
+      // THIS WILL COPY OVER EVERY section from the old to the new data, even ones that no longer exist in the new data.
+      // need a way to figure out how to exclude sections that no longer exist in the new data. TODOOOO
       for (const section of oldSections) {
         const hash = Keys.create(section).getHash();
 
@@ -305,8 +328,11 @@ class Updater {
 
       const oldSection = this.dataLib.getSectionServerDataFromHash(hash);
 
-      // This should never run.
-      // The user should not be able to sign up for a section that didn't exist when they were signing up.
+      // This may run in the odd chance that that the following 3 things happen:
+      // 1. a user signes up for a section.
+      // 2. the section dissapears (eg. it is removed from Banner).
+      // 3. the section re appears again.
+      // If this happens just ignore it for now, but the best would probably to be notifiy if there are seats open now
       if (!oldSection) {
         macros.warn('Section was added?', hash, newSection, sectionHashToUsers, classHashToUsers);
         continue;
@@ -332,6 +358,12 @@ class Updater {
             userToMessageMap[user] = [];
           }
 
+          // Debugging why multiple messages
+          if (userToMessageMap[user].includes(message)) {
+            macros.log('ignoring dup message??', user, message, oldSection, newSection);
+            continue;
+          }
+
           userToMessageMap[user].push(message);
         }
       }
@@ -345,6 +377,12 @@ class Updater {
       setTimeout(((facebookUserId) => {
         notifyer.sendFBNotification(facebookUserId, 'Reply with "stop" to unsubscribe from notifications.');
       }).bind(this, fbUserId), 100);
+
+      macros.logAmplitudeEvent('Facebook message sent out', {
+        toUser: fbUserId,
+        messages: userToMessageMap[fbUserId],
+        messageCount: userToMessageMap[fbUserId].length,
+      });
     }
 
     // Update dataLib with the updated termDump
@@ -368,8 +406,8 @@ class Updater {
 }
 
 
-async function getFrontendData(path) {
-  const body = await fs.readFile(path);
+async function getFrontendData(dataPath) {
+  const body = await fs.readFile(dataPath);
   return JSON.parse(body);
 }
 
@@ -377,6 +415,8 @@ async function test() {
   const termDumpPromise = getFrontendData('./public/data/v2/getTermDump/neu.edu/201910.json');
 
   const spring2018DataPromise = getFrontendData('./public/data/v2/getTermDump/neu.edu/201830.json');
+
+  const userData = await fs.readFile(path.join(__dirname, 'tests', 'data', 'updater.data.json'), 'utf8');
 
   const fallData = await termDumpPromise;
 
@@ -387,35 +427,47 @@ async function test() {
     201830: springData,
   });
 
-  const newUser = {
-    watchingSections: [
-      'neu.edu/201910/CS/1100/11293',
-      'neu.edu/201910/CS/1100/14657',
-      'neu.edu/201910/CS/1100/14656',
-      'neu.edu/201910/CS/1100/11294',
-      'neu.edu/201910/CS/1100/14652',
-      'neu.edu/201910/CS/1100/14653',
-      'neu.edu/201910/CS/1100/14658',
-      'neu.edu/201910/CS/1100/14659',
-      'neu.edu/201910/CS/1100/11291',
-      'neu.edu/201910/CS/1100/11292',
-      'neu.edu/201910/CS/1100/13186',
-      'neu.edu/201910/CS/1100/11295',
-      'neu.edu/201910/CS/1100/14654',
-      'neu.edu/201910/CS/1100/14660',
-      'neu.edu/201910/CS/1100/11296',
-      'neu.edu/201910/CS/1100/14655',
-      'neu.edu/201910/CS/1100/14661',
-    ],
-    watchingClasses: ['neu.edu/201910/CS/1100'],
-    firstName: 'Test Fistname',
-    lastName: 'Test Lastname',
-    facebookMessengerId: '1111111111111111',
-    facebookPageId: '12345678',
-    loginKeys: ['123'],
-  };
+  // const newUser = {
+  //   watchingSections: [
+  //     'neu.edu/201910/ENGW/3302/12812',
+  //     'neu.edu/201910/ENGW/3302/12813',
+  //     'neu.edu/201910/ENGW/3302/12815',
+  //     'neu.edu/201910/ENGW/3302/17377',
+  //     'neu.edu/201910/ENGW/3302/12814',
+  //     'neu.edu/201910/ENGW/3302/13006',
+  //     'neu.edu/201910/ENGW/3302/12811',
+  //     'neu.edu/201910/ENGW/3302/12816',
+  //     'neu.edu/201910/ENGW/3302/12810',
+  //     'neu.edu/201910/ENGW/3302/17376',
+  //     'neu.edu/201910/ENGW/3302/15027',
+  //     'neu.edu/201910/ENGW/3302/13005',
+  //     'neu.edu/201910/CS/1100/11293',
+  //     'neu.edu/201910/CS/1100/14657',
+  //     'neu.edu/201910/CS/1100/14656',
+  //     'neu.edu/201910/CS/1100/11294',
+  //     'neu.edu/201910/CS/1100/14652',
+  //     'neu.edu/201910/CS/1100/14653',
+  //     'neu.edu/201910/CS/1100/14658',
+  //     'neu.edu/201910/CS/1100/14659',
+  //     'neu.edu/201910/CS/1100/11291',
+  //     'neu.edu/201910/CS/1100/11292',
+  //     'neu.edu/201910/CS/1100/13186',
+  //     'neu.edu/201910/CS/1100/11295',
+  //     'neu.edu/201910/CS/1100/14654',
+  //     'neu.edu/201910/CS/1100/14660',
+  //     'neu.edu/201910/CS/1100/11296',
+  //     'neu.edu/201910/CS/1100/14655',
+  //     'neu.edu/201910/CS/1100/14661',
+  //   ],
+  //   watchingClasses: ['neu.edu/201910/CS/1100', 'neu.edu/201910/ENGW/3302'],
+  //   firstName: 'Test Fistname',
+  //   lastName: 'Test Lastname',
+  //   facebookMessengerId: '1111111111111111',
+  //   facebookPageId: '12345678',
+  //   loginKeys: ['123'],
+  // };
 
-  database.set('users/1111111111111111', newUser);
+  database.set('users', JSON.parse(userData));
 
   const instance = Updater.create(dataLib);
 
