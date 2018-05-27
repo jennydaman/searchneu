@@ -23,8 +23,8 @@ class ReferModal extends React.Component {
 
     this.state = {
 
-      // The value of hte message box.
-      isOpen: '',
+      // The value of the message box.
+      isOpen: false,
     };
 
     // this.onTextAreaChange = this.onTextAreaChange.bind(this);
@@ -33,6 +33,10 @@ class ReferModal extends React.Component {
     // this.onSubmit = this.onSubmit.bind(this);
     
     this.initialize();
+  }
+
+  componentDidMount() {
+    macros.log("componentDidMount rfere modal")
   }
   
   async initialize() {
@@ -106,20 +110,7 @@ class ReferModal extends React.Component {
 
     return (
       <div className='feedback-container'>
-        <Transition in={ this.state.messageVisible } timeout={ 500 }>
-          {(state) => {
-         return (
-           <Message
-             success
-             className='alertMessage'
-             header='Your submission was successful.'
-             style={{ ...transitionStyles[state] }}
-             onDismiss={ this.hideMessage }
-           />
-            );
-        }}
-        </Transition>
-        <Modal open={ this.props.feedbackModalOpen } onClose={ this.props.closeForm } size='small' className='feedback-modal-container'>
+        <Modal open={ this.isOpen } onClose={ this.props.closeForm } size='small' className='feedback-modal-container'>
           <Header icon='mail' content='Search NEU Feedback' />
           <Modal.Content className='formModalContent'>
             <Form>

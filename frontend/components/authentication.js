@@ -30,7 +30,7 @@ class Authentication {
     this.facebookApiPromiseResolver = null;
     
     this.facebookApiPromise = new Promise((resolve) => {
-      this.facebookApiPromiseResolver = null;
+      this.facebookApiPromiseResolver = resolve;
     })
 
     this.downloadUserData();
