@@ -73,31 +73,31 @@ class ReferModal extends React.Component {
 
     return (
       <div className='feedback-container'>
-        <Modal open={ this.state.isOpen } onClose={ this.closeForm } size='small' className='feedback-modal-container'>
+        <Modal open={ this.state.isOpen || true } onClose={ this.closeForm } size='small' className='feedback-modal-container'>
           <Header icon='mail' content='Refer your friends for priority notifications!' />
           <Modal.Content className='formModalContent'>
-            <Form>
               <div className='feedbackParagraph'>Refer a friend to Search NEU for priority notifications!</div>
               Send on messenger, url share, facebook, other (twitter, email, etc)
 
               url: https://searchneu.com/referred_from/idhere
 
               this works pretty well when the user is on mobile and has messenger installed
-              <a href="fb-messenger://share/?link=https%3A%2F%searchneu.com%referred_from%2F" + id here + "&app_id=1979224428978082">Send In Messenger</a>
+              <a target='_blank'
+                rel='noopener noreferrer'
+                 href={"fb-messenger://share/?link=https%3A%2F%searchneu.com%referred_from%2F" + 'idhere' + "&app_id=1979224428978082"}>Send In Messenger</a>
 
               this works pretty well when people are on web
+
+              <a target='_blank'
+                rel='noopener noreferrer'
+                 href="mailto:?subject=Search NEU&body=Hey,%0D%0A Not sure if you've heard of it, but if you haven't check out %3Ca%20href%3D%22https%3A%2F%2Fsearchneu.com%22%3ESearch%20NEU%3C%2Fa%3E - it's a great site for class information at NEU. https://searchneu.com">Send via email</a>
               https://developers.facebook.com/docs/sharing/reference/send-dialog
+
+              // insert the user's name at the bottom of this email. 
 
 
               email link
               you should be able to prefill body and subject here
-
-              
-
-
-              <p>By default this form is anonymous. Leave your name and/or email if you want us to be able to contact you.</p>
-              <Input name='contact' form='feedbackForm' className='formModalInput' onChange={ this.onContactChange } />
-            </Form>
           </Modal.Content>
           <Modal.Actions>
             <Button basic color='red' onClick={ this.closeForm }>
