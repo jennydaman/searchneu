@@ -77,8 +77,24 @@ class ReferModal extends React.Component {
           <Header icon='mail' content='Refer your friends for priority notifications!' />
           <Modal.Content className='formModalContent'>
             <Form>
-              <div className='feedbackParagraph'>Share Search NEU with your friends and we'll make sure to send you the first notification when a seat opens up!</div>
-              <TextArea name='response' form='feedbackForm' className='feedbackTextbox' onChange={ this.onTextAreaChange } />
+              <div className='feedbackParagraph'>Refer a friend to Search NEU for priority notifications!</div>
+              Send on messenger, url share, facebook, other (twitter, email, etc)
+
+              url: https://searchneu.com/referred_from/idhere
+
+              this works pretty well when the user is on mobile and has messenger installed
+              <a href="fb-messenger://share/?link=https%3A%2F%searchneu.com%referred_from%2F" + id here + "&app_id=1979224428978082">Send In Messenger</a>
+
+              this works pretty well when people are on web
+              https://developers.facebook.com/docs/sharing/reference/send-dialog
+
+
+              email link
+              you should be able to prefill body and subject here
+
+              
+
+
               <p>By default this form is anonymous. Leave your name and/or email if you want us to be able to contact you.</p>
               <Input name='contact' form='feedbackForm' className='formModalInput' onChange={ this.onContactChange } />
             </Form>
