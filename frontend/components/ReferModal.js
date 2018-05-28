@@ -32,11 +32,16 @@ class ReferModal extends React.Component {
     // this.hideMessage = this.hideMessage.bind(this);
     // this.onSubmit = this.onSubmit.bind(this);
     
+    this.closeForm = this.closeForm.bind(this);
+
     this.initialize();
   }
 
   componentDidMount() {
     macros.log("componentDidMount rfere modal")
+    this.setState({
+      isOpen: false
+    })
   }
   
   async initialize() {
@@ -53,52 +58,10 @@ class ReferModal extends React.Component {
     });
   }
 
-  async onSubmit() {
-
-    const response = await request.post({
-      url: '/submitFeedback',
-      body: {
-        message: this.state.messageValue,
-        contact: this.state.contactValue,
-      },
-    });
-
-    if (response.error) {
-      macros.error('Unable to submit feedback', response.error, this.state.messageValue, this.state.contactValue);
-    }
-
+  closeForm() {
     this.setState({
-      messageVisible: true,
-      messageValue: '',
-      contactValue: '',
-    });
-
-    // Hide the message after 2 seconds
-    setTimeout(() => {
-      this.setState({
-        messageVisible: false,
-      });
-    }, 2000);
-
-    this.props.closeForm();
-  }
-
-  onTextAreaChange(event) {
-    this.setState({
-      messageValue: event.target.value,
-    });
-  }
-
-  onContactChange(event) {
-    this.setState({
-      contactValue: event.target.value,
-    });
-  }
-
-  hideMessage() {
-    this.setState({
-      messageVisible: false,
-    });
+      isOpen: false
+    })
   }
 
   render() {
@@ -110,22 +73,22 @@ class ReferModal extends React.Component {
 
     return (
       <div className='feedback-container'>
-        <Modal open={ this.isOpen } onClose={ this.props.closeForm } size='small' className='feedback-modal-container'>
-          <Header icon='mail' content='Search NEU Feedback' />
+        <Modal open={ this.state.isOpen } onClose={ this.closeForm } size='small' className='feedback-modal-container'>
+          <Header icon='mail' content='Refer your friends for priority notifications!' />
           <Modal.Content className='formModalContent'>
             <Form>
-              <div className='feedbackParagraph'>Find a bug in Search NEU? Find a query that dosen&apos;t come up with the results you were looking for? Have an idea for an improvement or just want to say hi? Drop a line below! Feel free to write whatever you want to and someone on the team will read it.</div>
+              <div className='feedbackParagraph'>Share Search NEU with your friends and we'll make sure to send you the first notification when a seat opens up!</div>
               <TextArea name='response' form='feedbackForm' className='feedbackTextbox' onChange={ this.onTextAreaChange } />
               <p>By default this form is anonymous. Leave your name and/or email if you want us to be able to contact you.</p>
               <Input name='contact' form='feedbackForm' className='formModalInput' onChange={ this.onContactChange } />
             </Form>
           </Modal.Content>
           <Modal.Actions>
-            <Button basic color='red' onClick={ this.props.closeForm }>
+            <Button basic color='red' onClick={ this.closeForm }>
               <Icon name='remove' />
                 Cancel
             </Button>
-            <Button type='submit' color='green' form='feedbackForm' onClick={ this.onSubmit }>
+            <Button type='submit' color='green' form='feedbackForm' onClick={ this.closeForm }>
               <Icon name='checkmark' />
                 Submit
             </Button>
