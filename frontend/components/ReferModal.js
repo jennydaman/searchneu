@@ -64,6 +64,11 @@ class ReferModal extends React.Component {
     })
   }
 
+  // Android 
+  onAndroidShareClick() {
+
+  }
+
   render() {
     const transitionStyles = {
       entering: { opacity: 0 },
@@ -79,6 +84,15 @@ class ReferModal extends React.Component {
               <div className='feedbackParagraph'>Refer a friend to Search NEU for priority notifications!</div>
               Send on messenger, url share, facebook, other (twitter, email, etc)
 
+
+              on mobile the order should be;
+               - facebook messenger
+               - instagram direct
+               - sms (if there is room + it looks good)
+               - copy the url
+               - other (on android this can bring up the share dialog, on ios.... maybe add a bunch of more links tothe bottom?)
+
+
               url: https://searchneu.com/referred_from/idhere
 
               this works pretty well when the user is on mobile and has messenger installed
@@ -90,8 +104,13 @@ class ReferModal extends React.Component {
 
               <a target='_blank'
                 rel='noopener noreferrer'
-                 href="mailto:?subject=Search NEU&body=Hey,%0D%0A Not sure if you've heard of it, but if you haven't check out %3Ca%20href%3D%22https%3A%2F%2Fsearchneu.com%22%3ESearch%20NEU%3C%2Fa%3E - it's a great site for class information at NEU. https://searchneu.com">Send via email</a>
+                 href="mailto:?subject=Search NEU&body=Hey,%0D%0A%0D%0ANot sure if you've heard of it, but if you haven't check out %3Ca%20href%3D%22https%3A%2F%2Fsearchneu.com%22%3ESearch%20NEU%3C%2Fa%3E - it's a great site for class information at NEU. https://searchneu.com">Send via email</a>
               https://developers.facebook.com/docs/sharing/reference/send-dialog
+
+              // for sharing on android mobile
+
+              https://developers.google.com/web/updates/2016/09/navigator-share
+
 
               // insert the user's name at the bottom of this email. 
 
