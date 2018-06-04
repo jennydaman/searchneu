@@ -69,6 +69,13 @@ class ReferModal extends React.Component {
 
   }
 
+
+  // If navigator.share, return one button that just calls navigator.share.
+  // else, return a couple buttons - one for fb, fbmessenger,, email, link
+  getShareElements() {
+
+  }
+
   render() {
     const transitionStyles = {
       entering: { opacity: 0 },
@@ -83,6 +90,9 @@ class ReferModal extends React.Component {
           <Modal.Content className='formModalContent'>
               <div className='feedbackParagraph'>Refer a friend to Search NEU for priority notifications!</div>
               Send on messenger, url share, facebook, other (twitter, email, etc)
+
+
+              // clipboard https://stackoverflow.com/questions/400212/how-do-i-copy-to-the-clipboard-in-javascript
 
 
               on mobile the order should be;
