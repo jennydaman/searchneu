@@ -1,0 +1,53 @@
+/*
+ * This file is part of Search NEU and licensed under AGPL3. 
+ * See the license file in the root folder for details. 
+ */
+
+.refer-modal-container {
+
+
+  // This css fixes the position of the feedback modal. It broke when we updated the version of a package. 
+  // It might be fixed (and make this code obsolete) in a future package. 
+  top: 50%;
+  position: fixed;
+  left: 50%;
+  transform: translate(-50%, 0px);
+
+
+
+  .share-img {
+    height: 23px;
+    color: #bbb;
+    -webkit-text-stroke: #bbb;
+    opacity: .4;
+    padding-right: 10px;
+    padding-top: 0px;
+    margin-left: -5px;
+  }
+
+  .android-share-button{
+    display: block;
+    margin: 0 auto;
+  }
+
+
+  .copy-text {
+    text-align: center;
+    display: block;
+    margin: 0 auto;
+  }
+
+  .copy-button {
+    
+  }
+
+
+  .text {
+    display: inline-block;
+    /* padding-bottom: 5px; */
+    vertical-align: top;
+  }
+
+}
+
+

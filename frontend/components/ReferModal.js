@@ -42,7 +42,7 @@ class ReferModal extends React.Component {
   componentDidMount() {
     macros.log("componentDidMount rfere modal")
     this.setState({
-      isOpen: false
+      isOpen: true
     })
   }
   
@@ -68,6 +68,13 @@ class ReferModal extends React.Component {
 
   // Android 
   onAndroidShareClick() {
+    // alert('hi')
+    window.navigator.share({
+      title: 'hi there',
+        text: 'Hello World',
+
+      url: 'https://google.com'
+    })
 
   }
 
@@ -88,24 +95,48 @@ class ReferModal extends React.Component {
     let element = null;
 
     // Return the share thing
-    if (!window.navigator.share) {
-      element = <Button basic onClick={this.onAndroidShareClick}><img src={share}/>Share!</Button>
+    if (window.navigator.share || 1) {
+      element = <Button size='big' basic className="android-share-button" onClick={this.onAndroidShareClick}>
+                  <img src={share} className="share-img"/>
+                  {/*<Icon disabled name='share alternate' />*/}
+                  <span className="text">Share!</span>
+                </Button>
+
+
+    //  {/*<Button basic onClick={this.onAndroidShareClick}><img src={share}/>Share!</Button>*/}
     }
 
     return (
-      <div className='feedback-container'>
-        <Modal open={ this.state.isOpen || true } onClose={ this.closeForm } size='small' className='feedback-modal-container'>
+      <div className='referModal-container'>
+        <Modal open={ this.state.isOpen } onClose={ this.closeForm } size='small' className='refer-modal-container'>
           <Header icon='mail' content='Refer your friends for priority notifications!' />
           <Modal.Content className='formModalContent'>
-              <div className='feedbackParagraph'>Refer a friend to Search NEU for priority notifications!</div>
+              <div className='feedbackParagraph'>Share Search NEU with your friends and get priority notifications!</div>
 
 
-              <br/>
               <br/>
               {element}
               <br/>
+
+
+              <div className="copy-text">
+                <span>Or copy your share link:&nbsp;&nbsp;</span>
+                <Button basic><Icon disabled name='copy'/>copy</Button>
+              </div>
               <br/>
 
+              {/*When a popular class fills up, many students subscribe for notifications for the same */}
+
+              When a popular class fills up, many students usually subscribe for notifications on the same class. Share Search NEU with your friends to get notified first! We'll send you the notification 1 hour earlier for every friend you refer to the site.
+
+
+              {/*Sometimes, many students are subscribed to the same class. */}
+{/*
+              For every friend you refer, we'll send the no
+
+              Some languge down here that explains what is going on omg how awesme is this feature.*/}
+
+{/*
               Send on messenger, url share, facebook, other (twitter, email, etc)
 
 
@@ -143,16 +174,12 @@ class ReferModal extends React.Component {
 
 
               email link
-              you should be able to prefill body and subject here
+              you should be able to prefill body and subject here*/}
           </Modal.Content>
           <Modal.Actions>
-            <Button basic color='red' onClick={ this.closeForm }>
-              <Icon name='remove' />
-                Cancel
-            </Button>
-            <Button type='submit' color='green' form='feedbackForm' onClick={ this.closeForm }>
+            <Button basic onClick={ this.closeForm }>
               <Icon name='checkmark' />
-                Submit
+                Done
             </Button>
           </Modal.Actions>
         </Modal>
