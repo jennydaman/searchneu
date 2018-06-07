@@ -589,6 +589,35 @@ app.post('/webhook/', wrap(async (req, res) => {
 let rateLimit = {};
 let lastHour = 0;
 
+app.post('/getUser', wrap(async (req, res) => {
+  // Don't cache this endpoint.
+  res.setHeader('Cache-Control', 'no-cache, no-store');
+
+  if (!req.body.loginKey && !req.body.facebookMessengerId) {
+    macros.log('need loginKey or facebookMessengerId');
+    res.send(JSON.stringify({
+      error: 'need loginKey or facebookMessengerId.',
+    }));
+    return;
+  }
+
+  let facebookMessengerId = req.body.facebookMessengerId;
+
+  if (facebookMessengerId && (facebookMessengerId.length !== 16 || !/^\d+$/.test(facebookMessengerId))) {
+    macros.log('invalid facebookMessengerId');
+    res.send(JSON.stringify({
+      error: 'invalid 2.',
+    }));
+    return;
+  }
+
+
+  
+
+
+
+}))
+
 app.post('/submitFeedback', wrap(async (req, res) => {
   // Don't cache this endpoint.
   res.setHeader('Cache-Control', 'no-cache, no-store');

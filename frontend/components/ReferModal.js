@@ -28,11 +28,6 @@ class ReferModal extends React.Component {
       isOpen: false,
     };
 
-    // this.onTextAreaChange = this.onTextAreaChange.bind(this);
-    // this.onContactChange = this.onContactChange.bind(this);
-    // this.hideMessage = this.hideMessage.bind(this);
-    // this.onSubmit = this.onSubmit.bind(this);
-    
     this.closeForm = this.closeForm.bind(this);
     this.onAndroidShareClick = this.onAndroidShareClick.bind(this);
 
@@ -68,12 +63,10 @@ class ReferModal extends React.Component {
 
   // Android 
   onAndroidShareClick() {
-    // alert('hi')
     window.navigator.share({
-      title: 'hi there',
-        text: 'Hello World',
-
-      url: 'https://google.com'
+      title: 'Yo dude, check out Search NEU',
+      text: 'its lit yo',
+      url: 'https://searchneu.com/referred_from/' 
     })
 
   }

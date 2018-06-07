@@ -33,14 +33,50 @@ class Authentication {
       this.facebookApiPromiseResolver = resolve;
     })
 
-    this.downloadUserData();
+    // this.downloadUserData();
+    this.getIsLoggedIn();
   }
 
   // Downloads the user data from the server.
   // Send the loginKey and the facebookMessengerId (if we have it).
   // Save the facebookMessengerId when the server responds (the server can respond to this request a lot faster when given the facebookMessengerId).
-  downloadUserData() {
+  async downloadUserData() {
 
+    let user = await request.post({
+      url:'/getUser',
+      body: {
+        loginKey: this.getLoginKey(),
+      }
+    })
+
+
+    if (!user) {
+      macros.error("No user with this login key existed?")
+      return;
+    }
+
+
+    return user;
+
+
+
+  }
+
+  async getUserFacebookMessengerId() {
+
+    if (window.localStorage.facebookMessengerId) {
+      return window.localStorage.facebookMessengerId;
+    }
+
+    let user = await this.downloadUserData();
+
+    if (!user) {
+      return null;
+    }
+
+    window.localStorage.facebookMessengerId = user.facebookMessengerId;
+
+    return user.facebookMessengerId;
   }
   
   // This returns the window.FB after it has finished loading.
@@ -85,14 +121,32 @@ class Authentication {
       return true;
     }
 
-    return new Promise((resolve) => {
-      window.FB.getLoginStatus((response) => {
+    return new Promise(async (resolve) => {
+
+      let FB = await this.getFacebookAPI();
+
+      FB.getLoginStatus((response) => {
         if (response.status === 'connected') {
           // the user is logged in and has authenticated your
           // app, and response.authResponse supplies
           // the user's ID, a valid access token, a signed
           // request, and the time the access token
           // and signed request each expire
+
+
+          let loginId = response.authResponse.userID;
+
+          // User logged out of Facebook and then logged into Facebook a different account which caused the userID to change. 
+          // Clear out the local loginKey because that loginKey references the old account. 
+          // If this is not done, any actions that use the loginKey to pull user data will pull from the old account instead of the one they are currently logged into. 
+          if (window.localStorage.facebookLoginId && loginId !== window.localStorage.facebookLoginId) {
+            window.localStorage.clear();
+            macros.warn("Deleted an old login key and cleared localStorage because the user switched Facebook accounts.");
+          }
+
+          window.localStorage.facebookLoginId = loginId;
+
+
           resolve(true);
         } else if (response.status === 'not_authorized') {
           // the user is logged in to Facebook,
