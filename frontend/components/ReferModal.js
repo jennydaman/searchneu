@@ -11,6 +11,7 @@ import { Transition } from 'react-transition-group';
 import authentication from './authentication';
 import macros from './macros';
 import request from './request';
+import share from './share.svg';
 
 // This modal pops up after someone signs up for notifications
 // It provides the user with some information that they can use to refer other people to the site (eg. a url, share on FB, etc)
@@ -33,6 +34,7 @@ class ReferModal extends React.Component {
     // this.onSubmit = this.onSubmit.bind(this);
     
     this.closeForm = this.closeForm.bind(this);
+    this.onAndroidShareClick = this.onAndroidShareClick.bind(this);
 
     this.initialize();
   }
@@ -83,12 +85,27 @@ class ReferModal extends React.Component {
       exited: { display: 'none', opacity: 0 },
     };
 
+    let element = null;
+
+    // Return the share thing
+    if (!window.navigator.share) {
+      element = <Button basic onClick={this.onAndroidShareClick}><img src={share}/>Share!</Button>
+    }
+
     return (
       <div className='feedback-container'>
         <Modal open={ this.state.isOpen || true } onClose={ this.closeForm } size='small' className='feedback-modal-container'>
           <Header icon='mail' content='Refer your friends for priority notifications!' />
           <Modal.Content className='formModalContent'>
               <div className='feedbackParagraph'>Refer a friend to Search NEU for priority notifications!</div>
+
+
+              <br/>
+              <br/>
+              {element}
+              <br/>
+              <br/>
+
               Send on messenger, url share, facebook, other (twitter, email, etc)
 
 
