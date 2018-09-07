@@ -45,7 +45,17 @@ export default class EmployeePanel extends React.Component {
     employee: PropTypes.object.isRequired,
   };
 
-  static injectBRs(arr) {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      showMoreThanTitle: false,
+    };
+
+    this.toggleShowMoreThanTitle = this.toggleShowMoreThanTitle.bind(this);
+  }
+
+  injectBRs(arr) {
     const retVal = [];
 
     // Add <br/>s between the elements
@@ -60,17 +70,11 @@ export default class EmployeePanel extends React.Component {
     return retVal;
   }
 
-  constructor(props) {
-    super(props);
-
-    this.state = {
-      showMoreThanTitle: false,
-    };
-  }
-
-  toggleShowMoreThanTitle = () => {
-    this.setState({
-      showMoreThanTitle: !this.state.showMoreThanTitle,
+  toggleShowMoreThanTitle() {
+    this.setState((state) => {
+      return {
+        showMoreThanTitle: !state.showMoreThanTitle,
+      };
     });
   }
 
@@ -114,7 +118,11 @@ export default class EmployeePanel extends React.Component {
 
       const phoneText = phone.join('');
 
-      contactRows.push(<a key='tel' href={ `tel:${phoneText}` }>{phoneText}</a>);
+      contactRows.push(
+        <a key='tel' href={ `tel:${phoneText}` }>
+          {phoneText}
+        </a>,
+      );
     }
 
     if (macros.isMobile) {
@@ -124,11 +132,19 @@ export default class EmployeePanel extends React.Component {
     }
 
     if (employee.url && !macros.isMobile) {
-      firstColumn.push(<a key='link' target='_blank' rel='noopener noreferrer' href={ employee.url }>NEU Profile</a>);
+      firstColumn.push(
+        <a key='link' target='_blank' rel='noopener noreferrer' href={ employee.url }>
+          NEU Profile
+        </a>,
+      );
     }
 
     if (employee.personalSite) {
-      const element = <a key='personalSite' target='_blank' rel='noopener noreferrer' href={ employee.personalSite }>Personal Website</a>;
+      const element = (
+        <a key='personalSite' target='_blank' rel='noopener noreferrer' href={ employee.personalSite }>
+          Personal Website
+        </a>
+      );
       if (macros.isMobile) {
         secondColumn.push(element);
       } else {
@@ -192,15 +208,15 @@ export default class EmployeePanel extends React.Component {
         <div
           className='body'
           style={{
-          display: (!this.state.showMoreThanTitle && macros.isMobile) && 'none',
-          padding: 20,
-        }}
+            display: (!this.state.showMoreThanTitle && macros.isMobile) && 'none',
+            padding: 20,
+          }}
         >
           <div className='inlineBlock contact-box'>
-            {this.constructor.injectBRs(firstColumn)}
+            {this.injectBRs(firstColumn)}
           </div>
           <div className='employee-panel-second-column'>
-            {this.constructor.injectBRs(secondColumn)}
+            {this.injectBRs(secondColumn)}
           </div>
         </div>
       </div>

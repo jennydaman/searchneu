@@ -28,8 +28,8 @@ class MobileClassPanel extends BaseClassPanel {
   getClassBody() {
     const aClass = this.props.aClass;
 
-    const showFullClassBody = (this.state.showAllClassDetails ||
-        (!aClass.desc || aClass.desc.length < 50));
+    const showFullClassBody = (this.state.showAllClassDetails
+        || (!aClass.desc || aClass.desc.length < 50));
 
     if (showFullClassBody) {
       // Figure out the credits string
@@ -49,13 +49,21 @@ class MobileClassPanel extends BaseClassPanel {
               {`View on ${aClass.host}`}
             </a>
             <br />
-            Prerequisites: {this.optionalDisplay(macros.prereqTypes.PREREQ)} {this.showMore(macros.prereqTypes.PREREQ)}
+            Prerequisites:
+            {this.optionalDisplay(macros.prereqTypes.PREREQ)}
+            {this.showMore(macros.prereqTypes.PREREQ)}
             <br />
-            Corequisites: {this.optionalDisplay(macros.prereqTypes.COREQ)} {this.showMore(macros.prereqTypes.COREQ)}
+            Corequisites:
+            {this.optionalDisplay(macros.prereqTypes.COREQ)}
+            {this.showMore(macros.prereqTypes.COREQ)}
             <br />
-            Prerequisite for: {this.optionalDisplay(macros.prereqTypes.PREREQ_FOR)} {this.showMore(macros.prereqTypes.PREREQ_FOR)}
+            Prerequisite for:
+            {this.optionalDisplay(macros.prereqTypes.PREREQ_FOR)}
+            {this.showMore(macros.prereqTypes.PREREQ_FOR)}
             <br />
-            Optional Prerequisite for: {this.optionalDisplay(macros.prereqTypes.OPT_PREREQ_FOR)} {this.showMore(macros.prereqTypes.OPT_PREREQ_FOR)}
+            Optional Prerequisite for:
+            {this.optionalDisplay(macros.prereqTypes.OPT_PREREQ_FOR)}
+            {this.showMore(macros.prereqTypes.OPT_PREREQ_FOR)}
             <br />
             <SignUpForNotifications aClass={ aClass } />
           </div>
@@ -82,12 +90,13 @@ class MobileClassPanel extends BaseClassPanel {
         <span>
           {`${sliceDesc}...`}&nbsp;&nbsp;&nbsp;&nbsp;
         </span>
-
         <div>
           <a
             onClick={ () => {
-              this.setState({
-                showAllClassDetails: !this.state.showAllClassDetails,
+              this.setState((state) => {
+                return {
+                  showAllClassDetails: !state.showAllClassDetails,
+                };
               });
             } }
             style={{ display:'inline-block' }}
@@ -96,9 +105,7 @@ class MobileClassPanel extends BaseClassPanel {
           >
               Show More...
           </a>
-
         </div>
-
       </span>
 
     );
@@ -127,8 +134,10 @@ class MobileClassPanel extends BaseClassPanel {
           <div
             className='header'
             onClick={ () => {
-              this.setState({
-                showMoreThanTitle: !this.state.showMoreThanTitle,
+              this.setState((state) => {
+                return {
+                  showMoreThanTitle: !state.showMoreThanTitle,
+                };
               });
             } }
             role='button'
@@ -140,7 +149,7 @@ class MobileClassPanel extends BaseClassPanel {
             </span>
           </div>
 
-          <span style={{ display: !this.state.showMoreThanTitle && 'none' }} >
+          <span style={{ display: !this.state.showMoreThanTitle && 'none' }}>
 
             <div className='panel-body'>
               {this.getClassBody()}

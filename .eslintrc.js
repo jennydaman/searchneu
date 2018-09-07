@@ -23,6 +23,16 @@ module.exports = {
     'jsx-a11y/click-events-have-key-events': 0,
     'jsx-a11y/no-noninteractive-element-interactions': 0,
     'jsx-a11y/anchor-is-valid': 0,
+    'jsx-a11y/label-has-for': 0,
+
+    // This rule transforms things like this
+    // {seatsRemaining} / {seatsCapacity}
+    // into this
+    // {seatsRemaining}
+    // /
+    // {seatsCapacity}
+    // which is less readable. If they allow it to keep short elements or inline elements on the same line, might re-enable in the future. 
+    'react/jsx-one-expression-per-line': 0,
 
     // Allow for-of loops. 
     "no-restricted-syntax": [
@@ -57,6 +67,7 @@ module.exports = {
     "react/forbid-prop-types": 0,
     "react/no-danger": 1,
     "no-continue": 0,
+    'react/destructuring-assignment': 0,
 
     // This rule always triggers on Windows...
     "import/no-unresolved": Number(process.env.OS !== 'Windows_NT') * 2,

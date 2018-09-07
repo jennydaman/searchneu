@@ -19,11 +19,11 @@ import Keys from '../../common/Keys';
 // TODO: Lets make it so clicking on the Send To Messenger button changes this to a third state that just says thanks for signing up!
 
 class SignUpForNotifications extends React.Component {
+  static hasAdblock = false;
+
   static propTypes = {
     aClass: PropTypes.object.isRequired,
   };
-
-  static hasAdblock = false;
 
   constructor(props) {
     super(props);
@@ -173,7 +173,11 @@ class SignUpForNotifications extends React.Component {
       content = <Button basic onClick={ this.onSubscribeToggleChange } content='Get notified when seats open up!' className='notificationButton' />;
     } else {
       // Show a button that says there are currently seats available.
-      content = <div className='disabledButton notificationButton'>There are seats available in all sections.</div>;
+      content = (
+        <div className='disabledButton notificationButton'>
+          There are seats available in all sections.
+        </div>
+      );
     }
 
     const actions = [
