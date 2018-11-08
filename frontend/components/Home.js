@@ -17,6 +17,7 @@ import search from './search';
 import FeedbackModal from './FeedbackModal';
 import macros from './macros';
 import ResultsLoader from './ResultsLoader';
+import EmailInput from './EmailInput';
 import logo from './logo.svg';
 import boston from './boston.svg';
 
@@ -27,6 +28,13 @@ const OLD_TERMS = ['201858', '201855', '201854', '201852', '201838', '201835', '
 
 // The lastest term
 const LATEST_TERM = '201930';
+
+let SHOW_SUBMIT_EMAIL = Math.random() > 0.3;
+
+if (macros.TESTS) {
+  SHOW_SUBMIT_EMAIL = true;
+}
+
 
 // Home page component
 class Home extends React.Component {
@@ -517,6 +525,30 @@ class Home extends React.Component {
     ];
 
 
+    let attentionSection;
+    const actionCenterStyle = { opacity: wantToHelpOpacity, visibility:(wantToHelpOpacity === 0) ? 'hidden' : '' };
+
+    if (!SHOW_SUBMIT_EMAIL) {
+      attentionSection = (
+        <div style={ actionCenterStyle } className='atentionContainer'>
+          <p className='helpFistRow'>
+              We&apos;re looking for more team members!
+          </p>
+          <p>
+              Want to help build Search NEU?
+          </p>
+          <p>
+            <span role='button' tabIndex={ 0 } className={ `getInvolvedText ${hiddenHelpButton}` } onClick={ this.openHelpModal }>
+              Get involved &gt;
+            </span>
+          </p>
+        </div>
+      );
+    } else {
+      attentionSection = (<EmailInput containerStyle={ actionCenterStyle } />);
+    }
+
+
     // Not totally sure why, but this height: 100% removes the extra whitespace at the bottom of the page caused by the upward translate animation.
     // Actually it only removes the extra whitespace on chrome. Need to come up with a better solution for other browsers.
     return (
@@ -586,19 +618,8 @@ class Home extends React.Component {
                   onChange={ this.onTermdropdownChange }
                 />
               </div>
-              <div style={{ opacity: wantToHelpOpacity, visibility:(wantToHelpOpacity === 0) ? 'hidden' : '' }} className='wantToHelp'>
-                <p className='helpFistRow'>
-                  We&apos;re looking for more team members!
-                </p>
-                <p>
-                  Want to help build Search NEU?
-                </p>
-                <p>
-                  <span role='button' tabIndex={ 0 } className={ `getInvolvedText ${hiddenHelpButton}` } onClick={ this.openHelpModal }>
-                  Get involved &gt;
-                  </span>
-                </p>
-              </div>
+              {attentionSection}
+
               {hitEnterToSearch}
             </div>
           </div>
