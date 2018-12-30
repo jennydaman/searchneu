@@ -18,7 +18,7 @@ export default {
   devtool: macros.PROD ? 'source-map' : 'cheap-module-eval-source-map',
   mode: macros.PROD ? 'production' : 'development',
   entry: [
-    'babel-polyfill',
+    '@babel/polyfill',
     ...macros.DEV ? [
       'react-hot-loader/patch',
       'webpack-hot-middleware/client',
@@ -109,17 +109,7 @@ export default {
         test: /\.js$/,
         loader: 'babel-loader',
 
-        include: path.join(rootDir, 'frontend'),
-        options: {
-          cacheDirectory: true,
-        },
-      },
-
-      {
-        test: /\.js$/,
-        loader: 'babel-loader',
-
-        include: path.join(rootDir, 'common'),
+        include: [path.join(rootDir, 'frontend'), path.join(rootDir, 'common')],
         options: {
           cacheDirectory: true,
         },
