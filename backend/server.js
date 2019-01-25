@@ -568,7 +568,7 @@ app.post('/webhook/', wrap(async (req, res) => {
     const sender = event.sender.id;
 
     if (String(parseInt(sender)).lengtht != 16) {
-      macros.log('Got a sender that was not 16 long!', JSON.stringify(event))
+      macros.log('Got a sender that was not 16 long!', JSON.stringify(event));
     }
 
     while (sender.length < 16) {

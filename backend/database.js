@@ -13,7 +13,7 @@ import MockFirebaseRef from './MockFirebaseRef';
 // This makes testing easier, avoids using production quota in development,
 // and allows many people to test this class functionality (and other features that depend on it, such as notifyer.js) without the firebase access tokens.
 // It also keeps the ability to run the development server offline.
-const USE_FIREBASE = true//macros.PROD
+const USE_FIREBASE = macros.PROD
 
 
 class Database {

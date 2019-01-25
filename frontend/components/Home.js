@@ -545,6 +545,24 @@ class Home extends React.Component {
       attentionSection = (<EmailInput containerStyle={ actionCenterStyle } />);
     }
 
+    attentionSection = (
+      <div style={ actionCenterStyle } className='searchneuScoutMergeConainer atentionContainer'>
+        <div className='mergerLogoContainers'>
+          <img className='mergerSearchNEULogo' src={ logo } alt='Search NEU Logo' />
+          <div className='mergerPlusText'> + </div>
+          <img className='mergerScoutLogo' src={ scoutLogo } alt='Scout Logo' />
+        </div>
+        <div className='mergerSubtext'>
+          Search NEU is now a part of Scout! <span role='img' aria-label='Rocket'>🚀</span>
+        </div>
+        <div
+          className='mergerSubSubText'
+        >
+          Read the blog post
+        </div>
+      </div>
+    );
+
 
     // Not totally sure why, but this height: 100% removes the extra whitespace at the bottom of the page caused by the upward translate animation.
     // Actually it only removes the extra whitespace on chrome. Need to come up with a better solution for other browsers.
@@ -561,12 +579,12 @@ class Home extends React.Component {
           {/* eslint-enable max-len */}
         </a>
 
-        <div className='logos' onClick={ this.onLogoClick }>
-          <img src={ logo } className='searchneuLogo' alt='logo'/>
-          <div className="scoutLogoContainer"> 
-            <div className="scoutLogoPrefixText"> A </div>
-            <img src={ scoutLogo } className='scoutLogoImage' alt='logo'/>
-            <div className="scoutLogoPostText"> project</div>
+        <div className='logos' tabIndex={ 0 } role='button' onClick={ this.onLogoClick }>
+          <img src={ logo } className='searchneuLogo' alt='logo' />
+          <div className='scoutLogoContainer'>
+            <div className='scoutLogoPrefixText'> A </div>
+            <img src={ scoutLogo } className='scoutLogoImage' alt='logo' />
+            <div className='scoutLogoPostText'> project</div>
           </div>
         </div>
 
