@@ -19,6 +19,7 @@ import macros from './macros';
 import ResultsLoader from './ResultsLoader';
 import EmailInput from './EmailInput';
 import logo from './logo.svg';
+import scoutLogo from './scout logo.png';
 import boston from './boston.svg';
 
 // Terms that used to be scraped at one point, but are no longer scraped.
@@ -560,7 +561,14 @@ class Home extends React.Component {
           {/* eslint-enable max-len */}
         </a>
 
-        <img src={ logo } className='logo' alt='logo' onClick={ this.onLogoClick } />
+        <div className='logos' onClick={ this.onLogoClick }>
+          <img src={ logo } className='searchneuLogo' alt='logo'/>
+          <div className="scoutLogoContainer"> 
+            <div className="scoutLogoPrefixText"> A </div>
+            <img src={ scoutLogo } className='scoutLogoImage' alt='logo'/>
+            <div className="scoutLogoPostText"> project</div>
+          </div>
+        </div>
 
         <div className='bostonContainer' style={ bostonContainerStyle }>
           <img src={ boston } className='boston' alt='logo' />

@@ -18,11 +18,15 @@ const request = new Request('notifyer', {
 class Notifyer {
   // Webhook to respond to Facebook messages.
   async sendFBNotification(sender, text) {
-    if (sender.length !== 16 || sender.includes(',')) {
+    if (sender.includes(',')) {
       macros.warn('Invalid sender ID:', sender);
       return {
         error: 'true',
       };
+    }
+
+    if (sender.length !== 16) {
+      macros.warn("Sender id length != 15, but allowing", sender)
     }
 
     // If you want to message yourself in dev mode too, just change this.
@@ -62,6 +66,8 @@ class Notifyer {
 
     try {
       const response = await request.post(config);
+
+      console.log(JSON.stringify(response, null, 4))
 
       if (response.body.message_id) {
         macros.log('Sent a fb message to ', sender, text, response.body.message_id);

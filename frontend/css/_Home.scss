@@ -23,11 +23,6 @@
         pointer-events: none;
     }
 
-    .centerTextContainer {
-        padding-bottom: 8%; 
-    }
-
-
     .title {
         color: rgb(174, 69, 67);
         font-weight: 400;
@@ -42,13 +37,62 @@
         pointer-events: initial;
     }
 
-    .logo {
+    // .logo {
+    //     position: absolute;
+    //     height: 30px;
+    //     top: 40px;
+    //     left: 40px;
+    //     z-index: 10;
+    //     cursor: pointer;
+    // }
+
+    .logos {
         position: absolute;
-        height: 30px;
-        top: 40px;
-        left: 40px;
+        top: 30px;
+        left: 30px;
         z-index: 10;
         cursor: pointer;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .searchneuLogo {
+        display: flex;
+        width: 200px;
+    }
+
+    .scoutLogoContainer {
+        margin-top: 1px;
+        display: flex;
+        font-size: 18px;
+        margin-left: 27px;
+    }
+
+    .scoutLogoPrefixText {
+        display: flex;
+        margin-right: 5px;
+        vertical-align: middle;
+        text-align: center;
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        text-align: center;
+        color: #a3a3a3;
+    }
+
+    .scoutLogoImage {
+        display: flex;
+        height: 34px;
+    }
+
+    .scoutLogoPostText {
+        display: flex;
+        color: #a3a3a3;
+        display: flex;
+        justify-content: center;
+        flex-direction: column;
+        text-align: center;
+        margin-left: 2px;
     }
 
     .bostonContainer {
@@ -122,6 +166,10 @@
             transition-delay: 1s !important;
             transition: opacity 1s;
         }
+
+        .centerTextContainer {
+            padding-bottom: 8%; 
+        }
     }
 
     /* Mobile. */
@@ -132,6 +180,34 @@
             margin-left: 10px !important;
             max-width: none !important;
         }
+
+        .logos {
+            top: 17px;
+            left: 17px;
+        }
+
+        .searchneuLogo {
+            width: 150px;
+        }
+
+        .scoutLogoContainer {
+            font-size: 14px;
+            margin-left: 15px;
+        }
+
+        .scoutLogoPrefixText {
+            margin-right: 5px;
+        }
+
+        .scoutLogoImage {
+            height: 27px;
+        }
+
+        .scoutLogoPostText {
+            margin-left: 2px;
+        }
+
+
     }
 
     /* Title and subtitle area. Desktop only. */
@@ -168,6 +244,7 @@
         }
         .title {
             font-size: 45px;
+            line-height: 45px;
         }
 
         .subtitle {
@@ -339,7 +416,7 @@
         margin-left: auto;
         margin-right: auto;
         color: #888;
-        margin-top: 62px;
+        margin-top: 24px;
         line-height: 25px;
         transition: opacity .6s;
         transition-delay: 1s;

@@ -566,6 +566,15 @@ app.post('/webhook/', wrap(async (req, res) => {
   for (let i = 0; i < messagingEvents.length; i++) {
     const event = messagingEvents[i];
     const sender = event.sender.id;
+
+    if (String(parseInt(sender)).lengtht != 16) {
+      macros.log('Got a sender that was not 16 long!', JSON.stringify(event))
+    }
+
+    while (sender.length < 16) {
+      sender = `0${sender}`;
+    }
+
     if (event.message && event.message.text) {
       const text = event.message.text;
 

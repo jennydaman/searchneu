@@ -13,9 +13,12 @@ import MockFirebaseRef from './MockFirebaseRef';
 // This makes testing easier, avoids using production quota in development,
 // and allows many people to test this class functionality (and other features that depend on it, such as notifyer.js) without the firebase access tokens.
 // It also keeps the ability to run the development server offline.
+const USE_FIREBASE = true//macros.PROD
+
+
 class Database {
   constructor() {
-    if (macros.PROD) {
+    if (USE_FIREBASE) {
       // Promise for loading the firebase DB
       this.dbPromise = this.loadDatabase();
     } else {
@@ -154,7 +157,7 @@ class Database {
   // Value can be any JS object.
   // If it has sub-objects you can easily dive into them in the Firebase console.
   async set(key, value) {
-    if (macros.PROD) {
+    if (USE_FIREBASE) {
       const db = await this.dbPromise;
       return db.ref(key).set(value);
     }
@@ -166,7 +169,7 @@ class Database {
   // Get the value at this key.
   // Key follows the same form in the set method
   async get(key) {
-    if (macros.PROD) {
+    if (USE_FIREBASE) {
       const db = await this.dbPromise;
       const value = await db.ref(key).once('value');
       return value.val();
@@ -178,7 +181,7 @@ class Database {
   // Returns the raw firebase ref for a key
   // Use this if you need to read a value, check something about it, and then write to it.
   async getRef(key) {
-    if (macros.PROD) {
+    if (USE_FIREBASE) {
       const db = await this.dbPromise;
       return db.ref(key);
     }
