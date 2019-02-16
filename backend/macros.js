@@ -235,6 +235,54 @@ class Macros extends commonMacros {
     });
   }
 
+  // Takes an array of a bunch of thigs to log to rollbar
+  // Any of the times in the args array can be an error, and it will be logs according to rollbar's API
+  // shouldExit - exit after logging.
+  static async logRollbarError(args, shouldExit) {
+    const rollbarKey = await Macros.getEnvVariable('rollbarPostServerItemToken');
+
+    if (!rollbarKey) {
+      console.log("Don't have rollbar so not logging error in prod?"); // eslint-disable-line no-console
+      console.log(...args); // eslint-disable-line no-console
+      return;
+    }
+
+    rollbar.init(rollbarKey);
+
+    const stack = (new Error()).stack;
+
+    // The middle object can include any properties and values, much like amplitude.
+    args.stack = stack;
+
+    // Search through the args array for an error. If one is found, log that separately.
+    let possibleError;
+
+    for (const value of Object.values(args)) {
+      if (value instanceof Error) {
+        possibleError = value;
+        break;
+      }
+    }
+
+    if (possibleError) {
+      // The arguments can come in any order. Any errors should be logged separately.
+      // https://docs.rollbar.com/docs/nodejs#section-rollbar-log-
+      rollbar.error(possibleError, args, () => {
+        if (shouldExit) {
+          // And kill the process to recover.
+          // forver.js will restart it.
+          process.exit(1);
+        }
+      });
+    } else {
+      rollbar.error(args, () => {
+        if (shouldExit) {
+          process.exit(1);
+        }
+      });
+    }
+  }
+
 
   // This is for programming errors. This will cause the program to exit anywhere.
   // This *should* never be called.
@@ -247,6 +295,18 @@ class Macros extends commonMacros {
       process.exit(1);
     }
   }
+
+
+  // Use this for stuff that is bad, and shouldn't happen, but isn't mission critical and can be ignored and the app will continue working
+  // Will log something to rollbar and rollbar will send off an email
+  static async warn(...args) {
+    super.warn(...args);
+
+    if (Macros.PROD) {
+      this.logRollbarError(args, false);
+    }
+  }
+
 
   // Use this for stuff that should never happen, but does not mean the program cannot continue.
   // This will continue running in dev, but will exit on CI
@@ -263,37 +323,7 @@ class Macros extends commonMacros {
 
       // If running on AWS, tell rollbar about the error so rollbar sends off an email.
       } else {
-        const rollbarKey = await Macros.getEnvVariable('rollbarPostServerItemToken');
-
-        if (!rollbarKey) {
-          console.log("Don't have rollbar so not logging error in prod?"); // eslint-disable-line no-console
-          console.log(...args); // eslint-disable-line no-console
-          return;
-        }
-
-        rollbar.init(rollbarKey);
-
-        const stack = (new Error()).stack;
-
-        // The middle object can include any properties and values, much like amplitude.
-        args.stack = stack;
-
-        if (args.length === 0) {
-          args.push('Error had no message?');
-        }
-
-        if (args[0] instanceof Error) {
-          // The middle object can include any properties and values, much like amplitude.
-          rollbar.handleError(args[0], args, () => {
-            // And kill the process to recover.
-            // forver.js will restart it.
-            process.exit(1);
-          });
-        } else {
-          rollbar.error(args[0], args, () => {
-            process.exit(1);
-          });
-        }
+        this.logRollbarError(args, true);
       }
     }
   }
